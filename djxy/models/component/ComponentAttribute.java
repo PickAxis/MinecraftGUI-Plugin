@@ -1,0 +1,30 @@
+package djxy.models.component;
+
+public enum ComponentAttribute {
+    POSITION,
+    LOCATION_FREEZE,
+    VISIBLE,
+    X_RELATIVE,
+    Y_RELATIVE,
+    VALUE,
+    WIDTH,
+    HEIGHT,
+    PADDING_SIZE,
+    PADDING_SIDE,
+    BORDER_SIZE,
+    BORDER_SIDE,
+    BORDER_COLOR,
+    MARGIN_LEFT,
+    MARGIN_TOP,
+    MARGIN_RIGHT,
+    MARGIN_BOT,
+    BACKGROUND,
+    TEXT_ALIGNMENT,
+    TEXT_COLOR,
+    HINT,
+    URL,
+    FONT,
+    IMAGE_TYPE,
+    IMAGE_NAME,
+    MAX_TEXT_LINES;
+}
