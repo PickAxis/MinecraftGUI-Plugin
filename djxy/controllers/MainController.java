@@ -49,7 +49,6 @@ public final class MainController {
     private final AuthenticationManager authenticationManager;
     private boolean canAddComponentManager = false;
     private boolean playerNeedAuthentication = false;
-    private String test;
 
     public MainController() throws Exception {
         if(instance != null)
