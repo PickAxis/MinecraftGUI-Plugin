@@ -18,13 +18,9 @@ public class Form {
     public String getButtonId() {
         return buttonId;
     }
-    
-    public void addInput(String id, String value){
-        inputs.put(id, value);
-    }
 
-    public HashMap<String, String> getInputs() {
-        return (HashMap<String, String>) inputs.clone();
+    public String getInput(String inputId){
+        return inputs.get(inputId);
     }
     
     private void initForm(JSONObject obj){
@@ -32,8 +28,8 @@ public class Form {
         
         for (Object object : array) {
             JSONObject jsonObject = (JSONObject) object;
-            
-            addInput((String) jsonObject.get("Id"), (String) jsonObject.get("Value"));
+
+            inputs.put((String) jsonObject.get("Id"), (String) jsonObject.get("Value"));
         }
     }
     

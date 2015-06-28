@@ -9,13 +9,13 @@ public class Component {
     private final String parentId;
     private final ComponentType type;
     private final JSONObject createCommand;
-    private final ComponentUpdate componentUpdate;
+    private final Attributes attributes;
 
     public Component(ComponentType type, String id, String parentId) {
         this.id = id;
         this.parentId = parentId;
         this.type = type;
-        this.componentUpdate = new ComponentUpdate(id);
+        this.attributes = new Attributes(id);
         createCommand = new JSONObject();
         
         initComponentCreateCommand();
@@ -25,14 +25,14 @@ public class Component {
         this.id = id;
         this.parentId = "@ROOT";
         this.type = type;
-        this.componentUpdate = new ComponentUpdate(id);
+        this.attributes = new Attributes(id);
         createCommand = new JSONObject();
         
         initComponentCreateCommand();
     }
 
-    public ComponentUpdate getComponentUpdate() {
-        return componentUpdate;
+    public Attributes getAttributes() {
+        return attributes;
     }
 
     public String getId() {
@@ -50,7 +50,7 @@ public class Component {
         JSONArray commands = new JSONArray();
         
         commands.add(createCommand);
-        commands.addAll(componentUpdate.getCommands());
+        commands.addAll(attributes.getCommands());
         
         return commands;
     }

@@ -7,14 +7,14 @@ import java.util.Map;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-public class ComponentUpdate {
+public class Attributes {
     
     private final String id;
     private final HashMap<ComponentAttribute, HashMap<ComponentState, String>> attributesWithState;
     private final HashMap<ComponentAttribute, String> attributesWithoutState;
     private final ArrayList<String> inputs;
     
-    public ComponentUpdate(String componentId) {
+    public Attributes(String componentId) {
         this.id = componentId;
         attributesWithState = new HashMap<>();
         attributesWithoutState = new HashMap<>();

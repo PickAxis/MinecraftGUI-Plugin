@@ -6,7 +6,7 @@ import djxy.models.Form;
 import djxy.models.component.Component;
 import djxy.models.component.ComponentState;
 import djxy.models.component.ComponentType;
-import djxy.models.component.ComponentUpdate;
+import djxy.models.component.Attributes;
 import djxy.models.component.Font;
 import djxy.models.component.Position;
 import djxy.models.component.Side;
@@ -31,13 +31,13 @@ import org.spongepowered.api.plugin.Plugin;
 @Plugin(id = "MinecraftGUIServer", name = "Minecraft GUI Server", version = "1.0")
 public final class MainController {
 
-    public static final String PATH = "mods/MinecraftGUI";
+    protected static final String PATH = "mods/MinecraftGUI";
     private static MainController instance = null;
     
     public static MainController getInstance(){
         return instance;
     }
-    
+
     //**************************************************************************
     //**************************************************************************
     
@@ -62,7 +62,15 @@ public final class MainController {
         networkController = new NetworkController(this, 20000);
         componentLocationController = new ComponentLocationController();
     }
-    
+
+    //**************************************************************************
+    //**************************************************************************
+
+    /**
+     * You need to use this method to register your ComponentManager.
+     *
+     * @param manager The ComponentManager you are using to receive the events from MinecraftGUI.
+     */
     public void addComponentManager(ComponentManager manager){
         if(canAddComponentManager){
             playerNeedAuthentication = playerNeedAuthentication == false?manager.isPlayerNeedAuthentication():true;
@@ -81,36 +89,68 @@ public final class MainController {
             }
         }
     }
-    
-    public void removeComponent(String playerUUID, String componentId){
-        Boolean auth = playersAuthenticated.get(playerUUID);
-        
-        if(auth != null && auth == true)
-            networkController.sendCommandTo(playerUUID, createCommandRemoveComponent(componentId));
-    }
-    
-    public void updateComponent(String playerUUID, ComponentUpdate componentUpdate){
-        Boolean auth = playersAuthenticated.get(playerUUID);
-        
-        if(auth != null && auth == true){
-            componentLocationController.prepareToSendComponent(playerUUID, componentUpdate);
-            networkController.sendCommandTo(playerUUID, componentUpdate.getCommands());
-        }
-    }
-    
+
+    /**
+     * This method will create one component on the screen of the player
+     *
+     * @param playerUUID The player to send the component
+     * @param component The component to create
+     */
     public void createComponent(String playerUUID, Component component){
         Boolean auth = playersAuthenticated.get(playerUUID);
-        
+
         if(auth != null && auth == true){
-            componentLocationController.prepareToSendComponent(playerUUID, component.getComponentUpdate());
+            componentLocationController.setComponentLocation(playerUUID, component.getAttributes());
             networkController.sendCommandTo(playerUUID, component.getCommands());
         }
+    }
+
+    /**
+     * This method will change properties of one component on the screen of the player
+     *
+     * @param playerUUID The player to send the update
+     * @param attributes The attributes to send
+     */
+    public void updateComponent(String playerUUID, Attributes attributes){
+        Boolean auth = playersAuthenticated.get(playerUUID);
+        
+        if(auth != null && auth == true){
+            componentLocationController.setComponentLocation(playerUUID, attributes);
+            networkController.sendCommandTo(playerUUID, attributes.getCommands());
+        }
+    }
+
+    /**
+     * This method will remove a component of the player's screen
+     *
+     * @param playerUUID The player to remove the component
+     * @param componentId The component id of the component to remove
+     */
+    public void removeComponent(String playerUUID, String componentId){
+        Boolean auth = playersAuthenticated.get(playerUUID);
+
+        if(auth != null && auth == true)
+            networkController.sendCommandTo(playerUUID, createCommandRemoveComponent(componentId));
     }
     
     private void clearPlayerScreen(String playerUUID){
         networkController.sendCommandTo(playerUUID, createCommandClearScreen());
     }
-    
+
+    //**************************************************************************
+    //**************************************************************************
+
+    protected void newPlayerConnected(PlayerConnection playerConnection){
+        playersAuthenticated.put(playerConnection.getPlayerUUID(), false);
+
+        if(playerNeedAuthentication)
+            authenticationManager.initPlayerGUI(this, playerConnection.getPlayerUUID());
+        else{
+            playersAuthenticated.put(playerConnection.getPlayerUUID(), true);
+            callInitPlayerGUIEvent(playerConnection);
+        }
+    }
+
     protected void receiveCommand(PlayerConnection playerConnection, JSONObject object){
         String command[] = ((String) object.get("Command")).split(" ");
         
@@ -136,17 +176,6 @@ public final class MainController {
         }
     }
     
-    protected void newPlayerConnected(PlayerConnection playerConnection){
-        playersAuthenticated.put(playerConnection.getPlayerUUID(), false);
-        
-        if(playerNeedAuthentication)
-            authenticationManager.initPlayerGUI(this, playerConnection.getPlayerUUID());
-        else{
-            playersAuthenticated.put(playerConnection.getPlayerUUID(), true);
-            callInitPlayerGUIEvent(playerConnection);
-        }
-    }
-    
     private void setComponentLocationRelative(String playerUUID, JSONObject object){
         String componentId = (String) object.get("ComponentId");
         int x = (int) (long) object.get("XRelative");
@@ -154,28 +183,15 @@ public final class MainController {
         
         componentLocationController.setComponentLocationRelative(playerUUID, componentId, x, y);
     }
+
+    //**************************************************************************
+    //**************************************************************************
     
     private void callInitPlayerGUIEvent(PlayerConnection playerConnection){
         for(ComponentManager manager : componentManagers){
             networkController.sendCommandTo(playerConnection.getPlayerUUID(), createCommandsDownloadImage(manager));
             manager.initPlayerGUI(this, playerConnection.getPlayerUUID());
         }
-    }
-    
-    private JSONArray createCommandsDownloadImage(ComponentManager manager){
-        JSONArray array = new JSONArray();
-        
-        for(Map.Entry pairs : manager.getImagesToDownload().entrySet()){
-            JSONObject object = new JSONObject();
-            
-            object.put("Command", "DOWNLOAD IMAGE");
-            object.put("Url", pairs.getKey());
-            object.put("File", pairs.getValue());
-            
-            array.add(object);
-        }
-        
-        return array;
     }
     
     private void callReceiveInputFormEvent(PlayerConnection playerConnection, JSONObject object){
@@ -190,11 +206,6 @@ public final class MainController {
         }
     }
     
-    private void initPath(){
-        File file = new File(PATH);
-        file.mkdirs();
-    }
-    
     //**************************************************************************
     //**************************************************************************
     
@@ -204,7 +215,7 @@ public final class MainController {
     @Subscribe
     public void onConstructionEvent(ConstructionEvent event) {
         game = event.getGame();
-        initPath();
+        new File(PATH).mkdirs();
         componentLocationController.load();
         canAddComponentManager = true;
     }
@@ -243,6 +254,22 @@ public final class MainController {
         
         return array;
     }
+
+    private JSONArray createCommandsDownloadImage(ComponentManager manager){
+        JSONArray array = new JSONArray();
+
+        for(Map.Entry pairs : manager.getImagesToDownload().entrySet()){
+            JSONObject object = new JSONObject();
+
+            object.put("Command", "DOWNLOAD IMAGE");
+            object.put("Url", pairs.getKey());
+            object.put("File", pairs.getValue());
+
+            array.add(object);
+        }
+
+        return array;
+    }
     
     private JSONArray createCommandRemoveComponent(String componentId){
         JSONArray array = new JSONArray();
@@ -278,48 +305,48 @@ public final class MainController {
         public void initPlayerGUI(MainController mainController, String playerUUID) {
             Component panel = new Component(ComponentType.PANEL, panelId);
             
-            panel.getComponentUpdate().setPosition(Position.MIDDLE);
-            panel.getComponentUpdate().setXRelative(-.5f);
-            panel.getComponentUpdate().setYRelative(-.5f);
-            panel.getComponentUpdate().setWidth(ComponentState.NORMAL, 200);
-            panel.getComponentUpdate().setHeight(ComponentState.NORMAL, 62);
-            panel.getComponentUpdate().setBackground(ComponentState.NORMAL, new Color(22, 73, 154, 255));
-            panel.getComponentUpdate().setBorderSide(ComponentState.NORMAL, new Side(true, true, true, true));
-            panel.getComponentUpdate().setBorderSize(ComponentState.NORMAL, 2);
-            panel.getComponentUpdate().setBorderColor(ComponentState.NORMAL, new Color(69, 90, 100, 255));
+            panel.getAttributes().setPosition(Position.MIDDLE);
+            panel.getAttributes().setXRelative(-.5f);
+            panel.getAttributes().setYRelative(-.5f);
+            panel.getAttributes().setWidth(ComponentState.NORMAL, 200);
+            panel.getAttributes().setHeight(ComponentState.NORMAL, 62);
+            panel.getAttributes().setBackground(ComponentState.NORMAL, new Color(22, 73, 154, 255));
+            panel.getAttributes().setBorderSide(ComponentState.NORMAL, new Side(true, true, true, true));
+            panel.getAttributes().setBorderSize(ComponentState.NORMAL, 2);
+            panel.getAttributes().setBorderColor(ComponentState.NORMAL, new Color(69, 90, 100, 255));
             
             Component input = new Component(ComponentType.INPUT_NUMERIC_NO_DECIMAL, inputId, panel.getId());
             
-            input.getComponentUpdate().setPosition(Position.MIDDLE);
-            input.getComponentUpdate().setXRelative(-.5f);
-            input.getComponentUpdate().setYRelative(-27);
-            input.getComponentUpdate().setWidth(ComponentState.NORMAL, 160);
-            input.getComponentUpdate().setHeight(ComponentState.NORMAL, 21);
-            input.getComponentUpdate().setBackground(ComponentState.NORMAL, new Color(110, 126, 148, 255));
-            input.getComponentUpdate().setBorderSide(ComponentState.NORMAL, new Side(false, false, false, true));
-            input.getComponentUpdate().setBorderSize(ComponentState.NORMAL, 1);
-            input.getComponentUpdate().setBorderColor(ComponentState.NORMAL, new Color(182, 182, 182, 255));
-            input.getComponentUpdate().setTextAlignment(ComponentState.NORMAL, TextAlignment.MIDDLE);
-            input.getComponentUpdate().setTextColor(ComponentState.NORMAL, new Color(33, 33, 33, 255));
-            input.getComponentUpdate().setFont(ComponentState.NORMAL, Font.NORMAL);
-            input.getComponentUpdate().setFont(ComponentState.HOVER, Font.SHADOW);
+            input.getAttributes().setPosition(Position.MIDDLE);
+            input.getAttributes().setXRelative(-.5f);
+            input.getAttributes().setYRelative(-27);
+            input.getAttributes().setWidth(ComponentState.NORMAL, 160);
+            input.getAttributes().setHeight(ComponentState.NORMAL, 21);
+            input.getAttributes().setBackground(ComponentState.NORMAL, new Color(110, 126, 148, 255));
+            input.getAttributes().setBorderSide(ComponentState.NORMAL, new Side(false, false, false, true));
+            input.getAttributes().setBorderSize(ComponentState.NORMAL, 1);
+            input.getAttributes().setBorderColor(ComponentState.NORMAL, new Color(182, 182, 182, 255));
+            input.getAttributes().setTextAlignment(ComponentState.NORMAL, TextAlignment.MIDDLE);
+            input.getAttributes().setTextColor(ComponentState.NORMAL, new Color(33, 33, 33, 255));
+            input.getAttributes().setFont(ComponentState.NORMAL, Font.NORMAL);
+            input.getAttributes().setFont(ComponentState.HOVER, Font.SHADOW);
             
             Component button = new Component(ComponentType.BUTTON, buttonId, panel.getId());
             
-            button.getComponentUpdate().setPosition(Position.MIDDLE);
-            button.getComponentUpdate().setXRelative(-.5f);
-            button.getComponentUpdate().setYRelative(6);
-            button.getComponentUpdate().setWidth(ComponentState.NORMAL, 75);
-            button.getComponentUpdate().setHeight(ComponentState.NORMAL, 21);
-            button.getComponentUpdate().setBackground(ComponentState.NORMAL, new Color(27, 88, 184, 255));
-            button.getComponentUpdate().setBackground(ComponentState.HOVER, new Color(31, 174, 255, 255));
-            button.getComponentUpdate().setBorderSide(ComponentState.NORMAL, new Side(true, true, true, true));
-            button.getComponentUpdate().setBorderSize(ComponentState.NORMAL, 2);
-            button.getComponentUpdate().setBorderColor(ComponentState.NORMAL, new Color(182, 182, 182, 255));
-            button.getComponentUpdate().setValue("Send code");
-            button.getComponentUpdate().setTextAlignment(ComponentState.NORMAL, TextAlignment.MIDDLE);
-            button.getComponentUpdate().setTextColor(ComponentState.NORMAL, new Color(255, 0, 0, 255));
-            button.getComponentUpdate().addInput(input.getId());
+            button.getAttributes().setPosition(Position.MIDDLE);
+            button.getAttributes().setXRelative(-.5f);
+            button.getAttributes().setYRelative(6);
+            button.getAttributes().setWidth(ComponentState.NORMAL, 75);
+            button.getAttributes().setHeight(ComponentState.NORMAL, 21);
+            button.getAttributes().setBackground(ComponentState.NORMAL, new Color(27, 88, 184, 255));
+            button.getAttributes().setBackground(ComponentState.HOVER, new Color(31, 174, 255, 255));
+            button.getAttributes().setBorderSide(ComponentState.NORMAL, new Side(true, true, true, true));
+            button.getAttributes().setBorderSize(ComponentState.NORMAL, 2);
+            button.getAttributes().setBorderColor(ComponentState.NORMAL, new Color(182, 182, 182, 255));
+            button.getAttributes().setValue("Send code");
+            button.getAttributes().setTextAlignment(ComponentState.NORMAL, TextAlignment.MIDDLE);
+            button.getAttributes().setTextColor(ComponentState.NORMAL, new Color(255, 0, 0, 255));
+            button.getAttributes().addInput(input.getId());
             
             
             networkController.sendCommandTo(playerUUID, panel.getCommands());
@@ -331,7 +358,7 @@ public final class MainController {
 
         @Override
         public void receiveForm(MainController mainController, String playerUUID, Form form) {
-            String codeReceived = form.getInputs().get(inputId);
+            String codeReceived = form.getInput(inputId);
             String playerCode = playersCode.get(playerUUID);
             
             if(codeReceived.equals(playerCode)){

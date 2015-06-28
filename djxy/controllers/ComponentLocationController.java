@@ -1,6 +1,6 @@
 package djxy.controllers;
 
-import djxy.models.component.ComponentUpdate;
+import djxy.models.component.Attributes;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -30,15 +30,15 @@ public final class ComponentLocationController {
         locationRelatives.put(componentId.toLowerCase(), new LocationRelative(xRelative, yRelative));
     }
     
-    public void prepareToSendComponent(String playerUUID, ComponentUpdate componentUpdate){
+    public void setComponentLocation(String playerUUID, Attributes attributes){
         HashMap<String, LocationRelative> locationRelatives = playersComponentLocationRelatives.get(playerUUID);
         
         if(locationRelatives != null){
-            LocationRelative locationRelative = locationRelatives.get(componentUpdate.getId().toLowerCase());
+            LocationRelative locationRelative = locationRelatives.get(attributes.getId().toLowerCase());
             
             if(locationRelative != null){
-                componentUpdate.setXRelative(locationRelative.xRelative);
-                componentUpdate.setYRelative(locationRelative.yRelative);
+                attributes.setXRelative(locationRelative.xRelative);
+                attributes.setYRelative(locationRelative.yRelative);
             }
         }
     }
