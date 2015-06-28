@@ -44,7 +44,7 @@ public class MailSystem extends ComponentManager {
     private final HashMap<String, String> playersName;//Player name, Player UUID
 
     public MailSystem() {
-        super(false);
+        super(true);//The plugin require authentication of the player.
         playersMessages = new HashMap<>();
         playersUUID = new HashMap<>();
         playersName = new HashMap<>();
