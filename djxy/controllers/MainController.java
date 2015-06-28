@@ -208,13 +208,9 @@ public final class MainController {
     
     //**************************************************************************
     //**************************************************************************
-    
-    private Game game;
-    
-    //EVENTS
+
     @Subscribe
     public void onConstructionEvent(ConstructionEvent event) {
-        game = event.getGame();
         new File(PATH).mkdirs();
         componentLocationController.load();
         canAddComponentManager = true;

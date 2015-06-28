@@ -10,7 +10,21 @@ public abstract class ComponentManager {
     private final ArrayList<String> listOfComponentIdToListen;
     private final HashMap<String, String> imagesToDownload;
 
+    /**
+     * Called when the player has been authenticated or when he reset his screen.
+     *
+     * @param mainController MainController that called the event
+     * @param playerUUID The player to init the his screen
+     */
     public abstract void initPlayerGUI(MainController mainController, String playerUUID);
+
+    /**
+     * Called when a player click on a button you are listening.
+     *
+     * @param mainController MainController that called the event
+     * @param playerUUID The player who send the form
+     * @param form The form received
+     */
     public abstract void receiveForm(MainController mainController, String playerUUID, Form form);
     
     public ComponentManager(boolean needPlayerAuthentication) {
@@ -18,6 +32,7 @@ public abstract class ComponentManager {
         listOfComponentIdToListen = new ArrayList<>();
         imagesToDownload = new HashMap<>();
     }
+
 
     public boolean isPlayerNeedAuthentication() {
         return playerNeedAuthentication;
