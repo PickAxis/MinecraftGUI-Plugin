@@ -87,16 +87,17 @@ public final class Menu extends ComponentManager{
 
     @Override
     public void receiveForm(MainController mc, String playerUUID, Form form) {
-        
+        //When the player click on the close button of the main panel, it will set the visibility of the main panel on false
         if(form.getButtonId().equals(mainPanelCloseButton.getId())){
             Attributes mainPanelUpdate = new Attributes(mainPanel.getId());
             mainPanelUpdate.setVisible(false);
             mc.updateComponent(playerUUID, mainPanelUpdate);
         }
+        //When the player on the button for open or close the menu, it will change the visibility of the menu
         else if(form.getButtonId().equals(menuOpenCloseButton.getId())){
             boolean visible;
 
-            if(playersMenuVisible.get(playerUUID) == Boolean.TRUE){//If menu is visible
+            if(playersMenuVisible.get(playerUUID) == Boolean.TRUE){//If the menu is currently visible, it will be set on false
                 visible = false;
                 playersMenuVisible.put(playerUUID, Boolean.FALSE);
 
@@ -110,18 +111,23 @@ public final class Menu extends ComponentManager{
                     mc.updateComponent(playerUUID, update);
                 }
             }
-            else{
+            else{//If the menu is currently not visible, it will be set on true
                 visible = true;
                 playersMenuVisible.put(playerUUID, Boolean.TRUE);
             }
 
+            //Change the visibility of the menu
             Attributes menuPanelUpdate = new Attributes(menuPanel.getId());
             menuPanelUpdate.setVisible(visible);
             mc.updateComponent(playerUUID, menuPanelUpdate);
-            Attributes mainPanelUpdate = new Attributes(mainPanel.getId());
-            mainPanelUpdate.setVisible(visible);
-            mc.updateComponent(playerUUID, mainPanelUpdate);
+
+            if(!visible){//Change the main panel visibility on false if the menu visibility is set to false
+                Attributes mainPanelUpdate = new Attributes(mainPanel.getId());
+                mainPanelUpdate.setVisible(visible);
+                mc.updateComponent(playerUUID, mainPanelUpdate);
+            }
         }
+        //When the player click on one of the button of the list
         else{
             String panelId = playersLastButtonClicked.get(playerUUID);
 
@@ -142,7 +148,7 @@ public final class Menu extends ComponentManager{
 
             mainPanelUpdate.setVisible(true);
 
-            switch(form.getButtonId()){
+            switch(form.getButtonId()){//If the button open an url, it will set the visibility to false. If not it will set a color to the background
                 case id+"Home": mainPanelUpdate.setBackground(ComponentState.NORMAL, new Color(108, 154, 51)); break;
                 case id+"Skills": mainPanelUpdate.setBackground(ComponentState.NORMAL, new Color(38, 91, 106)); break;
                 case id+"Money": mainPanelUpdate.setBackground(ComponentState.NORMAL, new Color(170, 81, 57)); break;
@@ -161,11 +167,13 @@ public final class Menu extends ComponentManager{
     //Register the ComponentManager
     @Subscribe
     public void onServerAboutToStartEvent(ServerAboutToStartEvent event){
-        addButton(Icon.HOME, id+"Home", "Home");
+        //Add the normal buttons
+        addButton(Icon.HOME, id + "Home", "Home");
         addButton(Icon.BOOK, id + "Skills", "Skills");
         addButton(Icon.MONEY, id + "Money", "Money");
         addButton(Icon.EMAIL, id + "Email", "Email");
         addButton(Icon.USER, id + "Friends", "Friends");
+        //Add the buttons that open the web browser
         addButton(Icon.FACEBOOK, id + "Facebook", "Facebook", "https://www.facebook.com/");
         addButton(Icon.TWITTER, id + "Twitter", "Twitter", "https://twitter.com/");
         addButton(Icon.INSTAGRAM, id + "Instagram", "Instagram", "https://instagram.com/");
@@ -179,6 +187,8 @@ public final class Menu extends ComponentManager{
     }
 
     private void initComps(){
+        /* It is the blue rectangle on the left.
+         * His height is equal to the height of the player screen */
         menuPanel = new Component(ComponentType.PANEL, id+"menuListButton");
 
         menuPanel.getAttributes().setHeight(ComponentState.NORMAL, 1f);
@@ -186,6 +196,7 @@ public final class Menu extends ComponentManager{
         menuPanel.getAttributes().setBackground(ComponentState.NORMAL, colorBackground);
         menuPanel.getAttributes().setVisible(false);
 
+        //The image that is under the button to open the menu
         menuImage = new Component(ComponentType.IMAGE, id+"menuImage");
 
         menuImage.getAttributes().setXRelative(2);
@@ -197,6 +208,7 @@ public final class Menu extends ComponentManager{
         menuImage.getAttributes().setPaddingSide(ComponentState.NORMAL, new Side(true, false, true, false));
         menuImage.getAttributes().setPaddingSize(ComponentState.NORMAL, 2);
 
+        //The button to open and close the menu
         menuOpenCloseButton = new Component(ComponentType.BUTTON, id+"menuOpenCloseButton", menuImage.getId());
 
         menuOpenCloseButton.getAttributes().setWidth(ComponentState.NORMAL, 1f);
@@ -206,6 +218,7 @@ public final class Menu extends ComponentManager{
         menuOpenCloseButton.getAttributes().setPaddingSide(ComponentState.NORMAL, new Side(true, false, true, false));
         menuOpenCloseButton.getAttributes().setPaddingSize(ComponentState.NORMAL, 2);
 
+        //The menu label on the right of the button menuOpenCloseButton
         menuTitle = new Component(ComponentType.PARAGRAPH, id+"menuTitle", menuPanel.getId());
 
         menuTitle.getAttributes().setXRelative(24);
@@ -216,6 +229,7 @@ public final class Menu extends ComponentManager{
         menuTitle.getAttributes().setHeight(ComponentState.NORMAL, 9);
         menuTitle.getAttributes().setTextColor(ComponentState.NORMAL, Color.WHITE);
 
+        //The list that contain all the button
         menuList = new Component(ComponentType.LIST, id+"menuList", menuPanel.getId());
 
         menuList.getAttributes().setWidth(ComponentState.NORMAL, 1f);
@@ -226,6 +240,7 @@ public final class Menu extends ComponentManager{
         menuList.getAttributes().setBorderSide(ComponentState.NORMAL, new Side(false, true, false, false));
         menuList.getAttributes().setBorderSize(ComponentState.NORMAL, 1);
 
+        //I create an object Attributes because the button to go on the next page of the list is automatically created when the list is created.
         menuListButtonNext = new Attributes(menuList.getId()+"NextList");
 
         menuListButtonNext.setPosition(Position.BOTTOM_RIGHT);
@@ -239,6 +254,7 @@ public final class Menu extends ComponentManager{
         menuListButtonNext.setPaddingSide(ComponentState.NORMAL, new Side(false, true, false, false));
         menuListButtonNext.setPaddingSize(ComponentState.NORMAL, 2);
 
+        //I create an object Attributes because the button to go on the previous page of the list is automatically created when the list is created.
         menuListButtonPrevious = new Attributes(menuList.getId()+"PreviousList");
 
         menuListButtonPrevious.setPosition(Position.BOTTOM_LEFT);
@@ -251,6 +267,7 @@ public final class Menu extends ComponentManager{
         menuListButtonPrevious.setBackground(ComponentState.HOVER, colorHover);
         menuListButtonPrevious.setBackground(ComponentState.CLICK, colorClick);
 
+        //The rectangle that open when the player click on a normal button
         mainPanel = new Component(ComponentType.PANEL, id+"MainPanel");
 
         mainPanel.getAttributes().setWidth(ComponentState.NORMAL, 180);
@@ -260,6 +277,7 @@ public final class Menu extends ComponentManager{
         mainPanel.getAttributes().setYRelative(-.5f);
         mainPanel.getAttributes().setVisible(false);
 
+        //The button that close the main panel
         mainPanelCloseButton = new Component(ComponentType.BUTTON, id+"mainPanelCloseButton", mainPanel.getId());
 
         mainPanelCloseButton.getAttributes().setHeight(ComponentState.NORMAL, 9);
@@ -297,6 +315,7 @@ public final class Menu extends ComponentManager{
 
     }
 
+    //That object will automatically create all the components for the button.
     private class Button{
 
         private Component line;
@@ -307,6 +326,7 @@ public final class Menu extends ComponentManager{
         private Component input;
 
         public Button(Icon icon, String buttonId, String value, String url) {
+            //The rectangle that will contain all the components of the button
             panel = new Component(ComponentType.PANEL, buttonId+"Panel", menuList.getId());
 
             panel.getAttributes().setWidth(ComponentState.NORMAL, 1f);
@@ -315,6 +335,7 @@ public final class Menu extends ComponentManager{
             panel.getAttributes().setBorderColor(ComponentState.NORMAL, Color.WHITE);
             panel.getAttributes().setBorderSide(ComponentState.NORMAL, new Side(true, false, false, false));
 
+            //The image of the button
             image = new Component(ComponentType.IMAGE, buttonId+"Image", panel.getId());
 
             image.getAttributes().setXRelative(8);
@@ -326,6 +347,7 @@ public final class Menu extends ComponentManager{
             image.getAttributes().setImageType(ComponentState.NORMAL, ImageType.CUSTOM);
             image.getAttributes().setImageName(ComponentState.NORMAL, icon.getName()+".png");
 
+            //The text of the button
             text = new Component(ComponentType.PARAGRAPH, buttonId+"Text", panel.getId());
 
             text.getAttributes().setValue(value);
@@ -337,10 +359,12 @@ public final class Menu extends ComponentManager{
             text.getAttributes().setMarginLeft(32);
             text.getAttributes().setMarginTop(1);
 
+            //This input will contain the id of the panel. That will help to know which button the player clicked
             input = new Component(ComponentType.INPUT_INVISIBLE, buttonId+"Input", panel.getId());
 
             input.getAttributes().setValue(panel.getId());
 
+            //Create the type of the button
             if(url.equals(""))
                 button = new Component(ComponentType.BUTTON, buttonId, panel.getId());
             else{
@@ -355,10 +379,13 @@ public final class Menu extends ComponentManager{
             button.getAttributes().setBackground(ComponentState.CLICK, colorClick);
             button.getAttributes().setBorderColor(ComponentState.NORMAL, colorClick);
 
+            //I add the input to the button because when the player will click on this button, the button will send the value of the input.
             button.getAttributes().addInput(input.getId());
 
+            //Add the button to the list of button to listen.
             addComponentIdToListen(button.getId());
 
+            //The gray line under the panel
             line = new Component(ComponentType.PANEL, buttonId+"Line", menuList.getId());
 
             line.getAttributes().setBackground(ComponentState.NORMAL, colorHover);
