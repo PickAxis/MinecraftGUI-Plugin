@@ -24,6 +24,8 @@ public final class Menu extends ComponentManager{
     private final HashMap<String, String> playersLastButtonClicked;
     private final HashMap<String, Boolean> playersMenuVisible;
     private final ArrayList<Button> buttons;
+    
+    //Description of every component on the function initComps()
     private Component mainPanel;
     private Component mainPanelCloseButton;
     private Component menuImage;
@@ -46,16 +48,20 @@ public final class Menu extends ComponentManager{
         addComponentIdToListen(menuOpenCloseButton.getId());
     }
 
+    //Create a button that open the default web browser of the player
     public void addButton(Icon icon, String id, String value, String url){
         buttons.add(new Button(icon, id, value, url));
     }
 
+    //Create a normal button
     public void addButton(Icon icon, String id, String value){
         buttons.add(new Button(icon, id, value, ""));
     }
 
+    //When the player is authenticated, I send all the component to create the menu, the main panel and every buttons
     @Override
     public void initPlayerGUI(MainController mc, String string) {
+        //Menu
         mc.createComponent(string, menuPanel);
         mc.createComponent(string, menuImage);
         mc.createComponent(string, menuTitle);
@@ -63,9 +69,12 @@ public final class Menu extends ComponentManager{
         mc.createComponent(string, menuList);
         mc.updateComponent(string, menuListButtonNext);
         mc.updateComponent(string, menuListButtonPrevious);
+        
+        //Main panel
         mc.createComponent(string, mainPanel);
         mc.createComponent(string, mainPanelCloseButton);
 
+        //Buttons
         for(Button button : buttons){
             mc.createComponent(string, button.panel);
             mc.createComponent(string, button.image);
@@ -78,6 +87,7 @@ public final class Menu extends ComponentManager{
 
     @Override
     public void receiveForm(MainController mc, String playerUUID, Form form) {
+        
         if(form.getButtonId().equals(mainPanelCloseButton.getId())){
             Attributes mainPanelUpdate = new Attributes(mainPanel.getId());
             mainPanelUpdate.setVisible(false);
