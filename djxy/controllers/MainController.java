@@ -266,6 +266,20 @@ public final class MainController {
 
         return array;
     }
+
+    private JSONArray createCommandsDownloadImage(String url, String imageFileName){
+        JSONArray array = new JSONArray();
+
+        JSONObject object = new JSONObject();
+
+        object.put("Command", "DOWNLOAD IMAGE");
+        object.put("Url", url);
+        object.put("File", imageFileName);
+
+        array.add(object);
+
+        return array;
+    }
     
     private JSONArray createCommandRemoveComponent(String componentId){
         JSONArray array = new JSONArray();

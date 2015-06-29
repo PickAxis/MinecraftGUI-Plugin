@@ -44,11 +44,13 @@ public class MailSystem extends ComponentManager {
     private final HashMap<String, String> playersName;//Player name, Player UUID
 
     public MailSystem() {
-        super(true);//The plugin require authentication of the player.
+        super(true);//The plugin require the authentication of the player.
         playersMessages = new HashMap<>();
         playersUUID = new HashMap<>();
         playersName = new HashMap<>();
         initComps();
+
+        //Components to listen when clicked
         addComponentIdToListen(createMessageButtonSendMessage.getId());
         addComponentIdToListen(createMessageCloseButton.getId());
         addComponentIdToListen(readMessageCloseButton.getId());
@@ -58,7 +60,7 @@ public class MailSystem extends ComponentManager {
 
     @Override
     public void initPlayerGUI(MainController mc, String playerUUID) {
-        sendOpenMessageComponents(mc, playerUUID);
+        sendMenuMessageComponents(mc, playerUUID);
     }
 
     @Override
@@ -112,7 +114,7 @@ public class MailSystem extends ComponentManager {
     }
 
     //Send the components for the menu
-    private void sendOpenMessageComponents(MainController mc, String playerUUID){
+    private void sendMenuMessageComponents(MainController mc, String playerUUID){
         mc.createComponent(playerUUID, menuPanel);
         mc.createComponent(playerUUID, menuCreateMessage);
         mc.createComponent(playerUUID, menuReadMessage);
