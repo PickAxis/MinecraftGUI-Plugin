@@ -46,6 +46,21 @@ public final class Menu extends ComponentManager{
         //Components to listen when clicked
         addComponentIdToListen(mainPanelCloseButton.getId());
         addComponentIdToListen(menuOpenCloseButton.getId());
+
+        /* All the images the player need to download
+         * Credits to: Anton Saputro, Freepik, Google, SimpleIcon, Elegant Themes
+         * The images are from http://www.flaticon.com/
+         */
+        addImageToDownload("http://img15.hostingpics.net/pics/617850iconBook.png", "iconBook.png");
+        addImageToDownload("http://img15.hostingpics.net/pics/258587iconEmail.png", "iconEmail.png");
+        addImageToDownload("http://img15.hostingpics.net/pics/122004iconFacebook.png", "iconFacebook.png");
+        addImageToDownload("http://img15.hostingpics.net/pics/827736iconHome.png", "iconHome.png");
+        addImageToDownload("http://img15.hostingpics.net/pics/583041iconInstagram.png", "iconInstagram.png");
+        addImageToDownload("http://img15.hostingpics.net/pics/136498iconMoney.png", "iconMoney.png");
+        addImageToDownload("http://img15.hostingpics.net/pics/995005iconTwitter.png", "iconTwitter.png");
+        addImageToDownload("http://img15.hostingpics.net/pics/772668iconUser.png", "iconUser.png");
+        addImageToDownload("http://img15.hostingpics.net/pics/342944iconYoutube.png", "iconYoutube.png");
+        addImageToDownload("http://img15.hostingpics.net/pics/674170menuButton.png", "menuButton.png");
     }
 
     //Create a button that open the default web browser of the player
