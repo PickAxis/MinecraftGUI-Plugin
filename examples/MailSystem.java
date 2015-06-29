@@ -89,7 +89,6 @@ public class MailSystem extends ComponentManager {
         MainController.getInstance().addComponentManager(this);
     }
 
-
     //Register the player
     @Subscribe
     public void onPlayerJoinEvent(PlayerJoinEvent event){
