@@ -303,14 +303,14 @@ public final class Menu extends ComponentManager{
         MONEY("iconMoney"),
         USER("iconUser");
 
-        private final String name;
+        private final String name1;
 
         Icon(String name) {
-            this.name = name;
+            this.name1 = name;
         }
 
         public String getName() {
-            return name;
+            return name1;
         }
 
     }
