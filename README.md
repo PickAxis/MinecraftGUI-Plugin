@@ -2,14 +2,10 @@
 
 MinecraftGUI is a simple plugin that permit to create graphical element on the minecraft client. It is very easy to use for the developpers and the players only have to download the mod.
 
----
-
-How MinecraftGUI work:
+## How MinecraftGUI work:
 Everything is a component. Every elements on the screen the player can see or interact is a component. A component can contain some components. Each component has attributes and that allow to change their aspect. The possibility to interact with the component give you the possibility to change set their attributes when they are clicked, hovered by the mouse and when nothing happen.
 
----
-
-All the possibility with MinecraftGUI:
+## All the possibility with MinecraftGUI:
   - Draw rectangle.
   - Draw image(Minecraft items and blocks and custom image).
   - Interact with some components(Click and write).
@@ -20,16 +16,13 @@ All the possibility with MinecraftGUI:
 
 ---
 
-How to use MinecraftGUI:
+## How to use MinecraftGUI:
   - 1: You need to create a class that will extend of djxy.models.ComponentManager.
   - 2: You have to register your ComponentManager class. You can register your ComponentManager anytime when this events are called PreInitializationEvent, InitializationEvent, PostInitializationEvent, LoadCompleteEvent and ServerAboutToStart. When one of this events is called, you will have to call the function djxy.controllers.MainController.getInstance().addComponentManager([Your object ComponentManager]).
 
 ---
-
-How MinecraftGUI work:
-
   
-All the type of components to use:
+## All the type of components to use:
   - Panel
     - Draw a rectangle.
   - Image
