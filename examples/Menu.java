@@ -39,7 +39,7 @@ public final class Menu extends ComponentManager{
     private Attributes menuListButtonPrevious;
 
     public Menu() throws Exception {
-        super(true);//The plugin don't require the authentication of the player.
+        super(false);//The plugin don't require the authentication of the player.
         playersMenuVisible = new HashMap<>();
         playersLastButtonClicked = new HashMap<>();
         buttons = new ArrayList<>();
