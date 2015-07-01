@@ -4,14 +4,16 @@ import djxy.controllers.MainController;
 import djxy.models.ComponentManager;
 import djxy.models.Form;
 import djxy.models.component.*;
-
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.HashMap;
+import djxy.models.component.Component;
+import djxy.models.component.Font;
 import org.spongepowered.api.event.Subscribe;
 import org.spongepowered.api.event.entity.player.PlayerJoinEvent;
 import org.spongepowered.api.event.state.ServerAboutToStartEvent;
 import org.spongepowered.api.plugin.Plugin;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 @Plugin(id = Menu.id, name = "Menu MinecraftGUI Plugin", version = "1.0")
 public final class Menu extends ComponentManager{
@@ -37,7 +39,7 @@ public final class Menu extends ComponentManager{
     private Attributes menuListButtonPrevious;
 
     public Menu() throws Exception {
-        super(false);//The plugin don't require the authentication of the player.
+        super(true);//The plugin don't require the authentication of the player.
         playersMenuVisible = new HashMap<>();
         playersLastButtonClicked = new HashMap<>();
         buttons = new ArrayList<>();
@@ -75,38 +77,38 @@ public final class Menu extends ComponentManager{
 
     //When the player is authenticated, I send all the component to create the menu, the main panel and every buttons
     @Override
-    public void initPlayerGUI(MainController mc, String string) {
+    public void initPlayerGUI(String string) {
         //Menu
-        mc.createComponent(string, menuPanel);
-        mc.createComponent(string, menuImage);
-        mc.createComponent(string, menuTitle);
-        mc.createComponent(string, menuOpenCloseButton);
-        mc.createComponent(string, menuList);
-        mc.updateComponent(string, menuListButtonNext);
-        mc.updateComponent(string, menuListButtonPrevious);
+        MainController.createComponent(string, menuPanel);
+        MainController.createComponent(string, menuImage);
+        MainController.createComponent(string, menuTitle);
+        MainController.createComponent(string, menuOpenCloseButton);
+        MainController.createComponent(string, menuList);
+        MainController.updateComponent(string, menuListButtonNext);
+        MainController.updateComponent(string, menuListButtonPrevious);
         
         //Main panel
-        mc.createComponent(string, mainPanel);
-        mc.createComponent(string, mainPanelCloseButton);
+        MainController.createComponent(string, mainPanel);
+        MainController.createComponent(string, mainPanelCloseButton);
 
         //Buttons
         for(Button button : buttons){
-            mc.createComponent(string, button.panel);
-            mc.createComponent(string, button.image);
-            mc.createComponent(string, button.text);
-            mc.createComponent(string, button.input);
-            mc.createComponent(string, button.button);
-            mc.createComponent(string, button.line);
+            MainController.createComponent(string, button.panel);
+            MainController.createComponent(string, button.image);
+            MainController.createComponent(string, button.text);
+            MainController.createComponent(string, button.input);
+            MainController.createComponent(string, button.button);
+            MainController.createComponent(string, button.line);
         }
     }
 
     @Override
-    public void receiveForm(MainController mc, String playerUUID, Form form) {
+    public void receiveForm(String playerUUID, Form form) {
         //When the player click on the close button of the main panel, it will set the visibility of the main panel on false
         if(form.getButtonId().equals(mainPanelCloseButton.getId())){
             Attributes mainPanelUpdate = new Attributes(mainPanel.getId());
             mainPanelUpdate.setVisible(false);
-            mc.updateComponent(playerUUID, mainPanelUpdate);
+            MainController.updateComponent(playerUUID, mainPanelUpdate);
         }
         //When the player on the button for open or close the menu, it will change the visibility of the menu
         else if(form.getButtonId().equals(menuOpenCloseButton.getId())){
@@ -123,7 +125,7 @@ public final class Menu extends ComponentManager{
                     Attributes update = new Attributes(panelId);
 
                     update.setBorderSize(ComponentState.NORMAL, 0);
-                    mc.updateComponent(playerUUID, update);
+                    MainController.updateComponent(playerUUID, update);
                 }
             }
             else{//If the menu is currently not visible, it will be set on true
@@ -134,12 +136,12 @@ public final class Menu extends ComponentManager{
             //Change the visibility of the menu
             Attributes menuPanelUpdate = new Attributes(menuPanel.getId());
             menuPanelUpdate.setVisible(visible);
-            mc.updateComponent(playerUUID, menuPanelUpdate);
+            MainController.updateComponent(playerUUID, menuPanelUpdate);
 
             if(!visible){//Change the main panel visibility on false if the menu visibility is set to false
                 Attributes mainPanelUpdate = new Attributes(mainPanel.getId());
                 mainPanelUpdate.setVisible(visible);
-                mc.updateComponent(playerUUID, mainPanelUpdate);
+                MainController.updateComponent(playerUUID, mainPanelUpdate);
             }
         }
         //When the player click on one of the button of the list
@@ -151,13 +153,13 @@ public final class Menu extends ComponentManager{
                 Attributes update = new Attributes(panelId);
 
                 update.setBorderSize(ComponentState.NORMAL, 0);
-                mc.updateComponent(playerUUID, update);
+                MainController.updateComponent(playerUUID, update);
             }
 
             Attributes update = new Attributes(form.getInput(form.getButtonId() + "Input"));
 
             update.setBorderSize(ComponentState.NORMAL, 4);
-            mc.updateComponent(playerUUID, update);
+            MainController.updateComponent(playerUUID, update);
 
             Attributes mainPanelUpdate = new Attributes(mainPanel.getId());
 
@@ -172,7 +174,7 @@ public final class Menu extends ComponentManager{
                 default: mainPanelUpdate.setVisible(false); break;
             }
 
-            mc.updateComponent(playerUUID, mainPanelUpdate);
+            MainController.updateComponent(playerUUID, mainPanelUpdate);
 
             //Set the last button clicked on the list
             playersLastButtonClicked.put(playerUUID, form.getInput(form.getButtonId() + "Input"));
@@ -193,7 +195,7 @@ public final class Menu extends ComponentManager{
         addButton(Icon.TWITTER, id + "Twitter", "Twitter", "https://twitter.com/");
         addButton(Icon.INSTAGRAM, id + "Instagram", "Instagram", "https://instagram.com/");
         addButton(Icon.YOUTUBE, id + "Youtube", "Youtube", "https://www.youtube.com/");
-        MainController.getInstance().addComponentManager(this);
+        MainController.addComponentManager(this);
     }
 
     @Subscribe

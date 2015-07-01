@@ -59,34 +59,34 @@ public class MailSystem extends ComponentManager {
     }
 
     @Override
-    public void initPlayerGUI(MainController mc, String playerUUID) {
-        sendMenuMessageComponents(mc, playerUUID);
+    public void initPlayerGUI(String playerUUID) {
+        sendMenuMessageComponents(playerUUID);
     }
 
     @Override
-    public void receiveForm(MainController mc, String playerUUID, Form form) {
+    public void receiveForm(String playerUUID, Form form) {
         if(form.getButtonId().equals(createMessageButtonSendMessage.getId())){
             sendMessageTo(playerUUID, form.getInput(createMessageInputSendTo.getId()), form.getInput(createMessageInputMessage.getId()));
-            mc.removeComponent(playerUUID, createMessagePanel.getId());
+            MainController.removeComponent(playerUUID, createMessagePanel.getId());
         }
         else if(form.getButtonId().equals(createMessageCloseButton.getId()))
-            mc.removeComponent(playerUUID, createMessagePanel.getId());
+            MainController.removeComponent(playerUUID, createMessagePanel.getId());
         else if(form.getButtonId().equals(readMessageCloseButton.getId()))
-            mc.removeComponent(playerUUID, readMessagePanel.getId());
+            MainController.removeComponent(playerUUID, readMessagePanel.getId());
         else if(form.getButtonId().equals(menuCreateMessage.getId())){
-            mc.removeComponent(playerUUID, readMessagePanel.getId());
-            sendCreateMessageComponents(mc, playerUUID);
+            MainController.removeComponent(playerUUID, readMessagePanel.getId());
+            sendCreateMessageComponents(playerUUID);
         }
         else if(form.getButtonId().equals(menuReadMessage.getId())){
-            mc.removeComponent(playerUUID, createMessagePanel.getId());
-            sendReadMessageComponents(mc, playerUUID);
+            MainController.removeComponent(playerUUID, createMessagePanel.getId());
+            sendReadMessageComponents(playerUUID);
         }
     }
 
     //Register the ComponentManager
     @Subscribe
     public void onLoadCompleteEvent(LoadCompleteEvent event){
-        MainController.getInstance().addComponentManager(this);
+        MainController.addComponentManager(this);
     }
 
 
@@ -110,27 +110,27 @@ public class MailSystem extends ComponentManager {
         Attributes cu = new Attributes(menuMessageReceivedNb.getId());
         cu.setValue(playersMessages.get(playersUUID.get(playerUUID)).size()+"");
 
-        MainController.getInstance().updateComponent(playerUUID, cu);
+        MainController.updateComponent(playerUUID, cu);
     }
 
     //Send the components for the menu
-    private void sendMenuMessageComponents(MainController mc, String playerUUID){
-        mc.createComponent(playerUUID, menuPanel);
-        mc.createComponent(playerUUID, menuCreateMessage);
-        mc.createComponent(playerUUID, menuReadMessage);
-        mc.createComponent(playerUUID, menuMessageReceivedImage);
-        mc.createComponent(playerUUID, menuMessageReceivedNb);
+    private void sendMenuMessageComponents(String playerUUID){
+        MainController.createComponent(playerUUID, menuPanel);
+        MainController.createComponent(playerUUID, menuCreateMessage);
+        MainController.createComponent(playerUUID, menuReadMessage);
+        MainController.createComponent(playerUUID, menuMessageReceivedImage);
+        MainController.createComponent(playerUUID, menuMessageReceivedNb);
         updateMessageNb(playerUUID);
     }
 
     //Send the components when the player read a message
-    private void sendReadMessageComponents(MainController mc, String playerUUID){
-        mc.createComponent(playerUUID, readMessagePanel);
-        mc.createComponent(playerUUID, readMessageCloseButton);
-        mc.createComponent(playerUUID, readMessageParagraphFrom);
-        mc.createComponent(playerUUID, readMessageParagraphFromPlayerName);
-        mc.createComponent(playerUUID, readMessageParagraphMessage);
-        mc.createComponent(playerUUID, readMessageParagraphMessageContent);
+    private void sendReadMessageComponents(String playerUUID){
+        MainController.createComponent(playerUUID, readMessagePanel);
+        MainController.createComponent(playerUUID, readMessageCloseButton);
+        MainController.createComponent(playerUUID, readMessageParagraphFrom);
+        MainController.createComponent(playerUUID, readMessageParagraphFromPlayerName);
+        MainController.createComponent(playerUUID, readMessageParagraphMessage);
+        MainController.createComponent(playerUUID, readMessageParagraphMessageContent);
         ArrayList<Message> mes = playersMessages.get(playersUUID.get(playerUUID));
 
         if(mes != null && mes.size() > 0){
@@ -143,20 +143,20 @@ public class MailSystem extends ComponentManager {
             cu1.setValue(message.from);
             cu2.setValue(message.message);
 
-            mc.updateComponent(playerUUID, cu2);
-            mc.updateComponent(playerUUID, cu1);
+            MainController.updateComponent(playerUUID, cu2);
+            MainController.updateComponent(playerUUID, cu1);
         }
     }
 
     //Send the components when the player create a message
-    private void sendCreateMessageComponents(MainController mc, String playerUUID){
-        mc.createComponent(playerUUID, createMessagePanel);
-        mc.createComponent(playerUUID, createMessageCloseButton);
-        mc.createComponent(playerUUID, createMessageInputSendTo);
-        mc.createComponent(playerUUID, createMessageInputMessage);
-        mc.createComponent(playerUUID, createMessageParagraphSendTo);
-        mc.createComponent(playerUUID, createMessageParagraphMessage);
-        mc.createComponent(playerUUID, createMessageButtonSendMessage);
+    private void sendCreateMessageComponents(String playerUUID){
+        MainController.createComponent(playerUUID, createMessagePanel);
+        MainController.createComponent(playerUUID, createMessageCloseButton);
+        MainController.createComponent(playerUUID, createMessageInputSendTo);
+        MainController.createComponent(playerUUID, createMessageInputMessage);
+        MainController.createComponent(playerUUID, createMessageParagraphSendTo);
+        MainController.createComponent(playerUUID, createMessageParagraphMessage);
+        MainController.createComponent(playerUUID, createMessageButtonSendMessage);
     }
 
     //Init the components with all their attributes

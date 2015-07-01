@@ -17,7 +17,7 @@ import org.json.simple.parser.JSONParser;
 
 public final class NetworkController {
     
-    private final HashMap<String, Boolean> playersConnected;//List of all the player connected and the boolean indicate if he is connected with the client
+    private final HashMap<String, Boolean> playersConnected;//List of all the player connected on the server and the boolean indicate if he is connected with the client
     private final HashMap<String, PlayerConnection> playerConnections;
     private final ServerConnection serverConnection;
     private final MainController mainController;
@@ -50,7 +50,9 @@ public final class NetworkController {
     
     private void addPlayerConnection(PlayerConnection playerConnection){
         Boolean playerConnected = playersConnected.get(playerConnection.playerUUID);
-        
+
+        System.out.println(-2);
+
         if(playerConnected != null && !playerConnected){
             playerConnections.put(playerConnection.playerUUID, playerConnection);
             mainController.newPlayerConnected(playerConnection);
@@ -92,7 +94,6 @@ public final class NetworkController {
                 this.port = port;
                 serverSocket = new ServerSocket();
             } catch (IOException ex) {}
-            startCleaningThread();
         }
         
         private void start(){
@@ -103,6 +104,7 @@ public final class NetworkController {
                         serverSocket.bind(new InetSocketAddress(port));
                         
                         System.out.println("Server listening!");
+                        startCleaningThread();
                         
                         while(true){
                             PlayerConnection playerConnection = new PlayerConnection(serverSocket.accept());
@@ -194,7 +196,7 @@ public final class NetworkController {
                 
                 while(true){
                     String command = in.readLine();
-                    
+
                     if(playerUUID.equals("")){
                         playerUUID = command;
                         addPlayerConnection(this);
