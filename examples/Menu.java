@@ -184,13 +184,13 @@ public final class Menu extends ComponentManager{
     //Register the ComponentManager
     @Subscribe
     public void onServerAboutToStartEvent(ServerAboutToStartEvent event){
-        //Add the normal buttons
+        //Create the normal buttons
         addButton(Icon.HOME, id + "Home", "Home");
         addButton(Icon.BOOK, id + "Skills", "Skills");
         addButton(Icon.MONEY, id + "Money", "Money");
         addButton(Icon.EMAIL, id + "Email", "Email");
         addButton(Icon.USER, id + "Friends", "Friends");
-        //Add the buttons that open the web browser
+        //Create the buttons that open the web browser
         addButton(Icon.FACEBOOK, id + "Facebook", "Facebook", "https://www.facebook.com/");
         addButton(Icon.TWITTER, id + "Twitter", "Twitter", "https://twitter.com/");
         addButton(Icon.INSTAGRAM, id + "Instagram", "Instagram", "https://instagram.com/");
