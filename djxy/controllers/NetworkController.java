@@ -160,15 +160,15 @@ public final class NetworkController {
                             }
                         }
                         
-                        System.out.println("There was "+clone.size()+" connection waiting UUID and "+connectionClosed+" have been closed.");
-                        System.out.println("Currently there is "+playerConnections.size()+" player connected.");
+                        //System.out.println("There was "+clone.size()+" connection waiting UUID and "+connectionClosed+" have been closed.");
+                        //System.out.println("Currently there is "+playerConnections.size()+" player connected.");
                         
                         try {
                             Thread.sleep(2000);
                         } catch (InterruptedException ex) {}
                     }
                 }
-            }).start();
+            }, "Server MinecraftGUI cleaning Thread").start();
         }
         
     }
