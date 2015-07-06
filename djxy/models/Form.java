@@ -1,8 +1,9 @@
 package djxy.models;
 
-import java.util.HashMap;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
+import java.util.HashMap;
 
 public class Form {
     
@@ -25,7 +26,7 @@ public class Form {
     
     private void initForm(JSONObject obj){
         JSONArray array = (JSONArray) obj.get("Inputs");
-        
+
         for (Object object : array) {
             JSONObject jsonObject = (JSONObject) object;
 

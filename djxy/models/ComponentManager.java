@@ -1,6 +1,5 @@
 package djxy.models;
 
-import djxy.controllers.MainController;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -8,6 +7,7 @@ public abstract class ComponentManager {
     
     private final boolean playerNeedAuthentication;
     private final ArrayList<String> listOfComponentIdToListen;
+    private final ArrayList<String> fontsToDownload;
     private final HashMap<String, String> imagesToDownload;
 
     /**
@@ -28,6 +28,7 @@ public abstract class ComponentManager {
     public ComponentManager(boolean needPlayerAuthentication) {
         this.playerNeedAuthentication = needPlayerAuthentication;
         listOfComponentIdToListen = new ArrayList<>();
+        fontsToDownload = new ArrayList<>();
         imagesToDownload = new HashMap<>();
     }
 
@@ -43,13 +44,21 @@ public abstract class ComponentManager {
     public HashMap<String, String> getImagesToDownload() {
         return imagesToDownload;
     }
-    
+
+    public ArrayList<String> getFontsToDownload() {
+        return fontsToDownload;
+    }
+
     public void addComponentIdToListen(String componentId){
         listOfComponentIdToListen.add(componentId);
     }
     
     public void addImageToDownload(String url, String name){
         imagesToDownload.put(url, name);
+    }
+
+    public void addFontToDownload(String url){
+        fontsToDownload.add(url);
     }
     
 }

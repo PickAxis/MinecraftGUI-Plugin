@@ -1,14 +1,15 @@
 package djxy.controllers;
 
 import djxy.models.component.Attributes;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 public final class ComponentLocationController {
     
@@ -18,7 +19,11 @@ public final class ComponentLocationController {
     public ComponentLocationController() {
         this.playersComponentLocationRelatives = new HashMap<>();
     }
-    
+
+    public void resetPlayerComponentLocationRelative(String playerUUID){
+        playersComponentLocationRelatives.put(playerUUID, new HashMap<String, LocationRelative>());
+    }
+
     public void setComponentLocationRelative(String playerUUID, String componentId, int xRelative, int yRelative){
         HashMap<String, LocationRelative> locationRelatives = playersComponentLocationRelatives.get(playerUUID);
         

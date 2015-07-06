@@ -1,11 +1,12 @@
 package djxy.models.component;
 
-import java.awt.Color;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 public class Attributes {
     
@@ -25,20 +26,20 @@ public class Attributes {
         return id;
     }
     
-    public void setMarginLeft(int margin){
-        addUpdate(ComponentAttribute.MARGIN_LEFT, margin+"");
+    public void setMarginLeft(ComponentState state, int margin){
+        addUpdate(state, ComponentAttribute.MARGIN_LEFT, margin+"");
     }
     
-    public void setMarginTop(int margin){
-        addUpdate(ComponentAttribute.MARGIN_TOP, margin+"");
+    public void setMarginTop(ComponentState state, int margin){
+        addUpdate(state, ComponentAttribute.MARGIN_TOP, margin+"");
     }
     
-    public void setMarginRight(int margin){
-        addUpdate(ComponentAttribute.MARGIN_RIGHT, margin+"");
+    public void setMarginRight(ComponentState state, int margin){
+        addUpdate(state, ComponentAttribute.MARGIN_RIGHT, margin+"");
     }
     
-    public void setMarginBot(int margin){
-        addUpdate(ComponentAttribute.MARGIN_BOT, margin+"");
+    public void setMarginBot(ComponentState state, int margin){
+        addUpdate(state, ComponentAttribute.MARGIN_BOT, margin+"");
     }
     
     public void setPosition(Position position){
@@ -92,7 +93,16 @@ public class Attributes {
     public void setFont(ComponentState state, Font font){
         addUpdate(state, ComponentAttribute.FONT, font.name());
     }
-    
+
+    public void setFont(ComponentState state, String font){
+        addUpdate(state, ComponentAttribute.FONT, font);
+    }
+
+
+    public void setFontSize(ComponentState state, int size){
+        addUpdate(state, ComponentAttribute.FONT_SIZE, size+"");
+    }
+
     public void setWidth(ComponentState state, int width){
         addUpdate(state, ComponentAttribute.WIDTH, width+"");
     }

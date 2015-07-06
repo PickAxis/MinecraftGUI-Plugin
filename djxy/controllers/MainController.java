@@ -111,21 +111,38 @@ public final class MainController {
         componentLocationController = new ComponentLocationController();
     }
 
+    public boolean isPlayerCanExecuteCommand(String playerUUID){
+        return playersAuthenticated.get(playerUUID);
+    }
+
     public void sendCommandsTo(String playerUUID, JSONArray commands){
         networkController.sendCommandTo(playerUUID, commands);
     }
 
     public void setPlayersAuthenticated(String playerUUID){
+        PlayerConnection playerConnection = networkController.getPlayerConnection(playerUUID);
         playersAuthenticated.put(playerUUID, true);
+
+        for(ComponentManager manager : componentManagers) {
+            networkController.sendCommandTo(playerConnection.getPlayerUUID(), createCommandsDownloadImage(manager));
+            networkController.sendCommandTo(playerConnection.getPlayerUUID(), createCommandsDownloadFont(manager));
+        }
+
         callInitPlayerGUIEvent(networkController.getPlayerConnection(playerUUID));
     }
 
-    public void closePlayerConnection(String playerUUID){
-        networkController.closePlayer(playerUUID);
+    public boolean changePlayerConnectionState(String playerUUID){
+        return networkController.changePlayerConnectionState(playerUUID);
     }
 
-    private void clearPlayerScreen(String playerUUID){
+    public void resetPlayerComponentLocation(String playerUUID){
+        componentLocationController.resetPlayerComponentLocationRelative(playerUUID);
         networkController.sendCommandTo(playerUUID, createCommandClearScreen());
+        callInitPlayerGUIEvent(networkController.getPlayerConnection(playerUUID));
+    }
+
+    public void closePlayerConnection(String playerUUID) {
+        networkController.closePlayer(playerUUID);
     }
 
     protected void newPlayerConnected(PlayerConnection playerConnection){
@@ -133,10 +150,8 @@ public final class MainController {
 
         if(playerNeedAuthentication)
             authenticationManager.initPlayerGUI(playerConnection.getPlayerUUID());
-        else{
-            playersAuthenticated.put(playerConnection.getPlayerUUID(), true);
-            callInitPlayerGUIEvent(playerConnection);
-        }
+        else
+            setPlayersAuthenticated(playerConnection.getPlayerUUID());
     }
 
     protected void receiveCommand(PlayerConnection playerConnection, JSONObject object){
@@ -156,11 +171,6 @@ public final class MainController {
                     setComponentLocationRelative(playerConnection.getPlayerUUID(), object);
                 }
             }
-            else if(command[0].equals("SCREEN")){
-                if(command[1].equals("CLEAR")){
-                    
-                }
-            }
         }
     }
     
@@ -172,11 +182,9 @@ public final class MainController {
         componentLocationController.setComponentLocationRelative(playerUUID, componentId, x, y);
     }
 
-    private void callInitPlayerGUIEvent(PlayerConnection playerConnection){
-        for(ComponentManager manager : componentManagers){
-            networkController.sendCommandTo(playerConnection.getPlayerUUID(), createCommandsDownloadImage(manager));
+    protected void callInitPlayerGUIEvent(PlayerConnection playerConnection){
+        for(ComponentManager manager : componentManagers)
             manager.initPlayerGUI(playerConnection.getPlayerUUID());
-        }
     }
     
     private void callReceiveInputFormEvent(PlayerConnection playerConnection, JSONObject object){
@@ -199,7 +207,6 @@ public final class MainController {
 
     public void serverIsStarting(){
         canAddComponentManager = false;
-        System.out.println(componentManagers.size());
         networkController.start();
     }
 
@@ -212,11 +219,11 @@ public final class MainController {
         networkController.addPlayerConnected(playerUUID);
     }
 
-    public void playerQuit(String playerUUID){
+    public void playerQuit(String playerUUID) {
         networkController.closePlayer(playerUUID);
     }
     
-    private JSONArray createCommandClearScreen(){
+    protected JSONArray createCommandClearScreen(){
         JSONArray array = new JSONArray();
         JSONObject object = new JSONObject();
         object.put("Command", "CLEAR SCREEN");
@@ -242,16 +249,17 @@ public final class MainController {
         return array;
     }
 
-    private JSONArray createCommandsDownloadImage(String url, String imageFileName){
+    private JSONArray createCommandsDownloadFont(ComponentManager manager){
         JSONArray array = new JSONArray();
 
-        JSONObject object = new JSONObject();
+        for(String url : manager.getFontsToDownload()){
+            JSONObject object = new JSONObject();
 
-        object.put("Command", "DOWNLOAD IMAGE");
-        object.put("Url", url);
-        object.put("File", imageFileName);
+            object.put("Command", "DOWNLOAD FONT");
+            object.put("Url", url);
 
-        array.add(object);
+            array.add(object);
+        }
 
         return array;
     }

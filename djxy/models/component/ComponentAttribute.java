@@ -24,6 +24,7 @@ public enum ComponentAttribute {
     HINT,
     URL,
     FONT,
+    FONT_SIZE,
     IMAGE_TYPE,
     IMAGE_NAME,
     MAX_TEXT_LINES;

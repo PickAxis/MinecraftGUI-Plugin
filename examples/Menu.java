@@ -18,7 +18,7 @@ import java.util.HashMap;
 @Plugin(id = Menu.id, name = "Menu MinecraftGUI Plugin", version = "1.0")
 public final class Menu extends ComponentManager{
 
-    protected static final String id = "Menu";
+    protected static final String id = "Menu MinecraftGUI";
     private static final Color colorBackground = new Color(45, 137, 239, 255);
     private static final Color colorHover = new Color(100, 100, 100, 70);
     private static final Color colorClick = new Color(100, 100, 100, 140);
@@ -38,8 +38,8 @@ public final class Menu extends ComponentManager{
     private Attributes menuListButtonNext;
     private Attributes menuListButtonPrevious;
 
-    public Menu() throws Exception {
-        super(false);//The plugin don't require the authentication of the player.
+    public Menu()  {
+        super(true);//The plugin don't require the authentication of the player.
         playersMenuVisible = new HashMap<>();
         playersLastButtonClicked = new HashMap<>();
         buttons = new ArrayList<>();
@@ -63,6 +63,7 @@ public final class Menu extends ComponentManager{
         addImageToDownload("http://img15.hostingpics.net/pics/772668iconUser.png", "iconUser.png");
         addImageToDownload("http://img15.hostingpics.net/pics/342944iconYoutube.png", "iconYoutube.png");
         addImageToDownload("http://img15.hostingpics.net/pics/674170menuButton.png", "menuButton.png");
+        addFontToDownload("http://www.fontsquirrel.com/fonts/download/1942-report");
     }
 
     //Create a button that open the default web browser of the player
@@ -251,8 +252,8 @@ public final class Menu extends ComponentManager{
 
         menuList.getAttributes().setWidth(ComponentState.NORMAL, 1f);
         menuList.getAttributes().setHeight(ComponentState.NORMAL, 1f);
-        menuList.getAttributes().setMarginTop(17);
-        menuList.getAttributes().setMarginBot(16);
+        menuList.getAttributes().setMarginTop(ComponentState.NORMAL, 17);
+        menuList.getAttributes().setMarginBot(ComponentState.NORMAL, 16);
         menuList.getAttributes().setBorderColor(ComponentState.NORMAL, colorClick);
         menuList.getAttributes().setBorderSide(ComponentState.NORMAL, new Side(false, true, false, false));
         menuList.getAttributes().setBorderSize(ComponentState.NORMAL, 1);
@@ -293,6 +294,7 @@ public final class Menu extends ComponentManager{
         mainPanel.getAttributes().setXRelative(-.5f);
         mainPanel.getAttributes().setYRelative(-.5f);
         mainPanel.getAttributes().setVisible(false);
+        mainPanel.getAttributes().setLocationFreeze(false);
 
         //The button that close the main panel
         mainPanelCloseButton = new Component(ComponentType.BUTTON, id+"mainPanelCloseButton", mainPanel.getId());
@@ -320,14 +322,14 @@ public final class Menu extends ComponentManager{
         MONEY("iconMoney"),
         USER("iconUser");
 
-        private final String name1;
+        private final String name;
 
         Icon(String name) {
-            this.name1 = name;
+            this.name = name;
         }
 
         public String getName() {
-            return name1;
+            return name;
         }
 
     }
@@ -348,7 +350,7 @@ public final class Menu extends ComponentManager{
 
             panel.getAttributes().setWidth(ComponentState.NORMAL, 1f);
             panel.getAttributes().setHeight(ComponentState.NORMAL, 32);
-            panel.getAttributes().setMarginLeft(4);
+            panel.getAttributes().setMarginLeft(ComponentState.NORMAL, 4);
             panel.getAttributes().setBorderColor(ComponentState.NORMAL, Color.WHITE);
             panel.getAttributes().setBorderSide(ComponentState.NORMAL, new Side(true, false, false, false));
 
@@ -362,7 +364,11 @@ public final class Menu extends ComponentManager{
             image.getAttributes().setPaddingSide(ComponentState.NORMAL, new Side(true, true, true, true));
             image.getAttributes().setPaddingSize(ComponentState.NORMAL, 8);
             image.getAttributes().setImageType(ComponentState.NORMAL, ImageType.CUSTOM);
-            image.getAttributes().setImageName(ComponentState.NORMAL, icon.getName()+".png");
+
+            if(icon != Icon.BOOK)
+                image.getAttributes().setImageName(ComponentState.NORMAL, icon.getName()+".png");
+            else
+                image.getAttributes().setImageName(ComponentState.NORMAL, icon.getName()+".gif");
 
             //The text of the button
             text = new Component(ComponentType.PARAGRAPH, buttonId+"Text", panel.getId());
@@ -373,8 +379,10 @@ public final class Menu extends ComponentManager{
             text.getAttributes().setTextColor(ComponentState.NORMAL, Color.WHITE);
             text.getAttributes().setWidth(ComponentState.NORMAL, 1f);
             text.getAttributes().setHeight(ComponentState.NORMAL, 1f);
-            text.getAttributes().setMarginLeft(32);
-            text.getAttributes().setMarginTop(1);
+            text.getAttributes().setMarginLeft(ComponentState.NORMAL, 32);
+            text.getAttributes().setMarginTop(ComponentState.NORMAL, 1);
+            text.getAttributes().setFont(ComponentState.NORMAL, "1942report");
+            text.getAttributes().setFontSize(ComponentState.NORMAL, 9);
 
             //This input will contain the id of the panel. That will help to know which button the player clicked
             input = new Component(ComponentType.INPUT_INVISIBLE, buttonId+"Input", panel.getId());
@@ -391,7 +399,7 @@ public final class Menu extends ComponentManager{
 
             button.getAttributes().setWidth(ComponentState.NORMAL, 1f);
             button.getAttributes().setHeight(ComponentState.NORMAL, 1f);
-            button.getAttributes().setMarginLeft(-4);
+            button.getAttributes().setMarginLeft(ComponentState.NORMAL, -4);
             button.getAttributes().setBackground(ComponentState.HOVER, colorHover);
             button.getAttributes().setBackground(ComponentState.CLICK, colorClick);
             button.getAttributes().setBorderColor(ComponentState.NORMAL, colorClick);

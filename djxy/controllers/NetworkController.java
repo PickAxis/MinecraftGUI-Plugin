@@ -1,5 +1,9 @@
 package djxy.controllers;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -11,9 +15,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 public final class NetworkController {
     
@@ -32,6 +33,21 @@ public final class NetworkController {
     public void start(){
         serverConnection.start();
     }
+
+    public boolean changePlayerConnectionState(String playerUUID){
+        PlayerConnection playerConnection = getPlayerConnection(playerUUID);
+
+        if(playerConnection.canSendCommand == true){
+            sendCommandTo(playerUUID, mainController.createCommandClearScreen());
+            playerConnection.canSendCommand = false;
+            return false;
+        }
+        else{
+            playerConnection.canSendCommand = true;
+            mainController.callInitPlayerGUIEvent(playerConnection);
+            return true;
+        }
+    }
     
     public void addPlayerConnected(String playerUUID){
         playersConnected.put(playerUUID, false);
@@ -44,14 +60,12 @@ public final class NetworkController {
     protected void sendCommandTo(String playerUUID, JSONArray array){
         PlayerConnection playerConnection = playerConnections.get(playerUUID);
         
-        if(playerConnection != null)
+        if(playerConnection != null && playerConnection.canSendCommand)
             playerConnection.sendCommand(array.toJSONString());
     }
     
     private void addPlayerConnection(PlayerConnection playerConnection){
         Boolean playerConnected = playersConnected.get(playerConnection.playerUUID);
-
-        System.out.println(-2);
 
         if(playerConnected != null && !playerConnected){
             playerConnections.put(playerConnection.playerUUID, playerConnection);
@@ -163,6 +177,7 @@ public final class NetworkController {
         
         private final long timeCreated;
         private final Socket socket;
+        private boolean canSendCommand = true;
         private BufferedReader in;
         private DataOutputStream out;
         private String playerUUID = "";
