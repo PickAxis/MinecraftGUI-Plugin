@@ -47,6 +47,13 @@ public class SimpleComponent extends ComponentManager {
     private void initPanel(){
         panel = new Component(ComponentType.PANEL, "simplePanel");
 
+        /* The component state is the current state of the component with the mouse
+         * Normal: the mouse is not on the component.
+         * Hover: The mouse is hover the component.
+         * Click: Ths mouse is hover the component and the left button of the mouse is pressed.
+         * 
+         * When the attribute has a state, the value of this component will change depending the state of the component.
+         */
         panel.getAttributes().setWidth(ComponentState.NORMAL, 200);
         panel.getAttributes().setHeight(ComponentState.NORMAL, 200);
         panel.getAttributes().setBackground(ComponentState.NORMAL, Color.orange);
