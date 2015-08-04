@@ -18,7 +18,7 @@ Everything is a component. Every elements on the screen the player can see or in
 
 ## How to use MinecraftGUI:
   - 1: You need to create a class that will extend of ```djxy.models.ComponentManager```.
-  - 2: You have to register your ComponentManager class. You can register your ComponentManager anytime when this events are called PreInitializationEvent, InitializationEvent, PostInitializationEvent, LoadCompleteEvent and ServerAboutToStart. When one of this events is called, you will have to call the function ```djxy.controllers.MainController.addComponentManager(Your object ComponentManager).```
+  - 2: You have to register your ComponentManager class. You can register your ComponentManager anytime when this events are called PreInitializationEvent, InitializationEvent, PostInitializationEvent, LoadCompleteEvent and ServerAboutToStart. When one of this events is called, you will have to call the function ```registerComponentManager(Your object ComponentManager).```
   
 
 ## All the type of components to use:

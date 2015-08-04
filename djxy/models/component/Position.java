@@ -9,5 +9,5 @@ public enum Position {
     BOTTOM_RIGHT,
     LEFT_CENTER,
     RIGHT_CENTER,
-    MIDDLE;
+    MIDDLE
 }

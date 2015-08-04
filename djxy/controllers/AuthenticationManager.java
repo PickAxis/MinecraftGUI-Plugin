@@ -1,23 +1,8 @@
-package djxy.views;
+package djxy.controllers;
 
-import djxy.controllers.MainController;
-import djxy.models.ComponentManager;
-import djxy.models.Form;
-import djxy.models.component.Component;
-import djxy.models.component.*;
-import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.text.Texts;
-import org.spongepowered.api.text.format.TextColors;
+public class AuthenticationManager /*extends ComponentManager*/ {
 
-import java.awt.*;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.UUID;
-
-public class AuthenticationManager extends ComponentManager {
-
-    protected static final String id = "AuthenticationManager MinecraftGUI";
-    private final static int maxTry = 3;
+   /* private final static int maxTry = 3;
     private final static String panelId = "@AUTH_PANEL";
     private final static String inputId = "@AUTH_INPUT";
     private final static String imageId = "@AUTH_IMAGE_LOGO";
@@ -26,6 +11,7 @@ public class AuthenticationManager extends ComponentManager {
     private final static String buttonSendCodeInChatId = "@AUTH_BUTTON_SEND_CODE_IN_CHAT";
     private final static String buttonAuthenticateId = "@AUTH_BUTTON_AUTHENTICATE";
 
+    private final HashMap<String, Boolean> playersAuthenticated;
     private final HashMap<String, Integer> playersTrying;
     private final HashMap<String, String> playersCode;
     private final MainController mainController;
@@ -38,22 +24,31 @@ public class AuthenticationManager extends ComponentManager {
     private Component buttonSendCodeInChat;
 
     public AuthenticationManager(MainController mainController) {
-        super(true);
+        super("Authentication Manager", true, null, null);
         this.mainController = mainController;
+        playersAuthenticated = new HashMap<>();
         playersTrying = new HashMap<>();
         playersCode = new HashMap<>();
         initComps();
     }
 
+    public void addPlayerToAuthenticate(String playerUUID){
+        playersAuthenticated.put(playerUUID, false);
+    }
+
+    public boolean isPlayerAuthenticated(String playerUUID){
+        return playersAuthenticated.get(playerUUID);
+    }
+
     @Override
     public void initPlayerGUI(String playerUUID) {
-        mainController.sendCommandsTo(playerUUID, panel.getCommands());
-        mainController.sendCommandsTo(playerUUID, image.getCommands());
-        mainController.sendCommandsTo(playerUUID, line.getCommands());
-        mainController.sendCommandsTo(playerUUID, input.getCommands());
-        mainController.sendCommandsTo(playerUUID, paragraph.getCommands());
-        mainController.sendCommandsTo(playerUUID, buttonSendCodeInChat.getCommands());
-        mainController.sendCommandsTo(playerUUID, buttonAuthenticate.getCommands());
+        mainController.sendComponentCreate(playerUUID, panel);
+        mainController.sendComponentCreate(playerUUID, image);
+        mainController.sendComponentCreate(playerUUID, line);
+        mainController.sendComponentCreate(playerUUID, input);
+        mainController.sendComponentCreate(playerUUID, paragraph);
+        mainController.sendComponentCreate(playerUUID, buttonSendCodeInChat);
+        mainController.sendComponentCreate(playerUUID, buttonAuthenticate);
 
         initPlayerAuth(playerUUID);
     }
@@ -65,8 +60,8 @@ public class AuthenticationManager extends ComponentManager {
             String playerCode = playersCode.get(playerUUID);
 
             if (codeReceived.equals(playerCode)) {
-                mainController.sendCommandsTo(playerUUID, mainController.createCommandRemoveComponent(panelId));
-                mainController.setPlayersAuthenticated(playerUUID);
+                mainController.sendComponentRemove(playerUUID, panelId);
+                playersAuthenticated.put(playerUUID, true);
             } else {
                 playersTrying.put(playerUUID, playersTrying.get(playerUUID) + 1);
 
@@ -80,14 +75,7 @@ public class AuthenticationManager extends ComponentManager {
     }
 
     private void sendPlayerCode(String playerUUID){
-        try {
-            Player player = Sponge.game.getServer().getPlayer(UUID.fromString(playerUUID)).get();
-            String code = playersCode.get(playerUUID);
-
-            player.sendMessage(Texts.builder("Your authentication code: ").color(TextColors.GREEN).append(Texts.builder(code).color(TextColors.RED).append(Texts.builder(".").color(TextColors.GREEN).build()).build()).build());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        mainController.getPluginInterface().sendAuthenticationCode(playerUUID, playersCode.get(playerUUID));
     }
 
     private void initPlayerAuth(String playerUUID) {
@@ -135,7 +123,7 @@ public class AuthenticationManager extends ComponentManager {
         paragraph.getAttributes().setValue("This server need an authentication. Enter the code you received in the chat. You only have 3 chances.");
         paragraph.getAttributes().setTextColor(ComponentState.NORMAL, new Color(240, 240, 240, 255));
 
-        input = new Component(ComponentType.INPUT_NUMERIC_NO_DECIMAL, inputId, panelId);
+        input = new Component(ComponentType.INPUT_INTEGER, inputId, panelId);
 
         input.getAttributes().setYRelative(65);
         input.getAttributes().setWidth(ComponentState.NORMAL, 1f);
@@ -178,5 +166,5 @@ public class AuthenticationManager extends ComponentManager {
         buttonAuthenticate.getAttributes().setBorderSize(ComponentState.NORMAL, 1);
         buttonAuthenticate.getAttributes().setBorderColor(ComponentState.NORMAL, new Color(108, 108, 108, 255));
         buttonAuthenticate.getAttributes().addInput(inputId);
-    }
+    }*/
 }

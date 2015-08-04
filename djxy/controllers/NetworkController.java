@@ -38,7 +38,7 @@ public final class NetworkController {
         PlayerConnection playerConnection = getPlayerConnection(playerUUID);
 
         if(playerConnection.canSendCommand == true){
-            sendCommandTo(playerUUID, mainController.createCommandClearScreen());
+            mainController.clearPlayerScreen(playerUUID);
             playerConnection.canSendCommand = false;
             return false;
         }
@@ -69,7 +69,7 @@ public final class NetworkController {
 
         if(playerConnected != null && !playerConnected){
             playerConnections.put(playerConnection.playerUUID, playerConnection);
-            mainController.newPlayerConnected(playerConnection);
+            mainController.newPlayerConnection(playerConnection);
         }
         else
             playerConnection.close();

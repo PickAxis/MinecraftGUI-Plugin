@@ -8,8 +8,17 @@ public enum ComponentType{
     BUTTON_URL,
     LIST,
     INPUT_INVISIBLE,
-    INPUT,
+    INPUT_TEXT,
     INPUT_PASSWORD,
-    INPUT_NUMERIC_NO_DECIMAL,
-    INPUT_NUMERIC
+    INPUT_INTEGER,
+    INPUT_DECIMAL;
+
+    public static ComponentType getComponentType(String type){
+        try{
+            return valueOf(type.toUpperCase());
+        }catch (Exception e){
+        }
+
+        return PANEL;
+    }
 }

@@ -33,5 +33,10 @@ public class Form {
             inputs.put((String) jsonObject.get("Id"), (String) jsonObject.get("Value"));
         }
     }
-    
+
+    @Override
+    public String toString(){
+        return inputs.toString();
+    }
+
 }

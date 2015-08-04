@@ -3,20 +3,22 @@ package djxy.controllers;
 import djxy.controllers.NetworkController.PlayerConnection;
 import djxy.models.ComponentManager;
 import djxy.models.Form;
+import djxy.models.PluginInterface;
 import djxy.models.component.Attributes;
 import djxy.models.component.Component;
-import djxy.views.AuthenticationManager;
+import djxy.models.resource.FontResource;
+import djxy.models.resource.ImageResource;
+import djxy.models.resource.Resource;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public final class MainController {
 
-    protected static final String PATH = "mods/MinecraftGUI";
+    public static final String PATH = "mods/MinecraftGUI";
     private static MainController instance = null;
 
     /**
@@ -24,23 +26,36 @@ public final class MainController {
      *
      * @param manager The ComponentManager you are using to receive the events from MinecraftGUI.
      */
-    public static void addComponentManager(ComponentManager manager){
-        if(instance.canAddComponentManager){
-            instance.playerNeedAuthentication = instance.playerNeedAuthentication == false?manager.isPlayerNeedAuthentication():true;
+    public static void registerComponentManager(ComponentManager manager, String id, boolean playerNeedAuthentication, ArrayList<Resource> resourceToDownload){
+        instance.addComponentManager(manager, id, playerNeedAuthentication);
+        instance.resourcesToDownload.addAll(resourceToDownload);
+    }
 
-            instance.componentManagers.add(manager);
+    /**
+     * You need to use this method to register your ComponentManager.
+     *
+     * @param manager The ComponentManager you are using to receive the events from MinecraftGUI.
+     */
+    public static void registerComponentManager(ComponentManager manager, String id, boolean playerNeedAuthentication){
+        instance.addComponentManager(manager, id, playerNeedAuthentication);
+    }
 
-            for(String componentId : manager.getListOfComponentIdToListen()){
-                ArrayList<ComponentManager> componentManagers = instance.componentManagersPerComponent.get(componentId);
+    public static void listenButton(ComponentManager manager, String buttonId){
+        instance.addComponentManagerListenButton(manager, buttonId);
+    }
 
-                if(componentManagers == null){
-                    instance.componentManagersPerComponent.put(componentId, new ArrayList<ComponentManager>());
-                    componentManagers = instance.componentManagersPerComponent.get(componentId);
-                }
+    public static void createTimerRemover(String playerUUID, String componentIdToRemove, int second){
+        Boolean auth = instance.isPlayerAuthenticated(playerUUID);
 
-                componentManagers.add(manager);
-            }
-        }
+        if(auth != null && auth == true)
+            instance.sendTimerRemover(playerUUID, componentIdToRemove, second);
+    }
+
+    public static void callButtonEvent(String playerUUID, String buttonId){
+        Boolean auth = instance.isPlayerAuthenticated(playerUUID);
+
+        if(auth != null && auth == true)
+            instance.sendCallButtonEvent(playerUUID, buttonId);
     }
 
     /**
@@ -50,12 +65,10 @@ public final class MainController {
      * @param component The component to create
      */
     public static void createComponent(String playerUUID, Component component){
-        Boolean auth = instance.playersAuthenticated.get(playerUUID);
+        Boolean auth = instance.isPlayerAuthenticated(playerUUID);
 
-        if(auth != null && auth == true){
-            instance.componentLocationController.setComponentLocation(playerUUID, component.getAttributes());
-            instance.networkController.sendCommandTo(playerUUID, component.getCommands());
-        }
+        if(auth != null && auth == true)
+            instance.sendComponentCreate(playerUUID, component);
     }
 
     /**
@@ -65,12 +78,10 @@ public final class MainController {
      * @param attributes The attributes to send
      */
     public static void updateComponent(String playerUUID, Attributes attributes){
-        Boolean auth = instance.playersAuthenticated.get(playerUUID);
+        Boolean auth = instance.isPlayerAuthenticated(playerUUID);
 
-        if(auth != null && auth == true){
-            instance.componentLocationController.setComponentLocation(playerUUID, attributes);
-            instance.networkController.sendCommandTo(playerUUID, attributes.getCommands());
-        }
+        if(auth != null && auth == true)
+            instance.sendComponentUpdate(playerUUID, attributes);
     }
 
     /**
@@ -80,55 +91,127 @@ public final class MainController {
      * @param componentId The id of the component to remove
      */
     public static void removeComponent(String playerUUID, String componentId){
-        Boolean auth = instance.playersAuthenticated.get(playerUUID);
+        Boolean auth = instance.isPlayerAuthenticated(playerUUID);
 
         if(auth != null && auth == true)
-            instance.networkController.sendCommandTo(playerUUID, instance.createCommandRemoveComponent(componentId));
+            instance.sendComponentRemove(playerUUID, componentId);
+    }
+
+    public static void downloadResource(String playerUUID, Resource resource){
+        Boolean auth = instance.isPlayerAuthenticated(playerUUID);
+
+        if(auth != null && auth == true)
+            instance.sendResource(playerUUID, resource);
     }
 
     //**************************************************************************
     //**************************************************************************
-    
+
     private final ArrayList<ComponentManager> componentManagers;
-    private final HashMap<String, ArrayList<ComponentManager>> componentManagersPerComponent;
-    private final HashMap<String, Boolean> playersAuthenticated;
+    private final ArrayList<Resource> resourcesToDownload;
+    private final HashMap<String, Object> componentsCreated;
+    private final HashMap<String, ArrayList<ComponentManager>> componentManagersListeningButton;
     private final NetworkController networkController;
     private final ComponentLocationController componentLocationController;
-    private final AuthenticationManager authenticationManager;
+    //private final AuthenticationManager authenticationManager;
+    private final PluginInterface pluginInterface;
     private boolean canAddComponentManager = false;
     private boolean playerNeedAuthentication = false;
 
-    public MainController() throws Exception {
+    public MainController(PluginInterface pluginInterface) throws Exception {
         if(instance != null)
             throw new Exception();
-        
+
         instance = this;
-        playersAuthenticated = new HashMap<>();
+        resourcesToDownload = new ArrayList<>();
+        this.pluginInterface = pluginInterface;
+        componentsCreated = new HashMap<>();
         componentManagers = new ArrayList<>();
-        componentManagersPerComponent = new HashMap<>();
-        authenticationManager = new AuthenticationManager(this);
+        componentManagersListeningButton = new HashMap<>();
+        //this.authenticationManager = new AuthenticationManager(this);
         networkController = new NetworkController(this, 20000);
         componentLocationController = new ComponentLocationController();
     }
 
-    public boolean isPlayerCanExecuteCommand(String playerUUID){
-        return playersAuthenticated.get(playerUUID);
-    }
-
-    public void sendCommandsTo(String playerUUID, JSONArray commands){
-        networkController.sendCommandTo(playerUUID, commands);
-    }
-
-    public void setPlayersAuthenticated(String playerUUID){
-        PlayerConnection playerConnection = networkController.getPlayerConnection(playerUUID);
-        playersAuthenticated.put(playerUUID, true);
-
-        for(ComponentManager manager : componentManagers) {
-            networkController.sendCommandTo(playerConnection.getPlayerUUID(), createCommandsDownloadImage(manager));
-            networkController.sendCommandTo(playerConnection.getPlayerUUID(), createCommandsDownloadFont(manager));
-        }
-
+    public void reloadPlayerScreen(String playerUUID){
         callInitPlayerGUIEvent(networkController.getPlayerConnection(playerUUID));
+    }
+
+    public void sendResource(String playerUUID, Resource resource){
+        if(resource instanceof ImageResource)
+            networkController.sendCommandTo(playerUUID, createCommandDownloadImage(resource.getUrl(), ((ImageResource) resource).getName()));
+        else if(resource instanceof FontResource)
+            networkController.sendCommandTo(playerUUID, createCommandDownloadFont(resource.getUrl()));
+    }
+
+    public void sendTimerRemover(String playerUUID, String componentIdToRemove, int second){
+        networkController.sendCommandTo(playerUUID, createCommandTimerRemover(componentIdToRemove, second));
+    }
+
+    public void sendCallButtonEvent(String playerUUID, String buttonId){
+        networkController.sendCommandTo(playerUUID, createCommandCallButtonEvent(buttonId));
+    }
+
+    public void sendComponentRemove(String playerUUID, String componentId){
+        networkController.sendCommandTo(playerUUID, createCommandRemoveComponent(componentId));
+    }
+
+    public void sendComponentUpdate(String playerUUID, Attributes attributes){
+        componentLocationController.setComponentLocation(playerUUID, attributes);
+        networkController.sendCommandTo(playerUUID, attributes.getCommands());
+    }
+
+    public void sendComponentCreate(String playerUUID, Component component){
+        componentsCreated.put(component.getId().toLowerCase(), Boolean.TRUE);
+        componentLocationController.setComponentLocation(playerUUID, component.getAttributes());
+        networkController.sendCommandTo(playerUUID, component.getCommands());
+
+        for(Component child : component.getChildren())
+            sendComponentCreate(playerUUID, child);
+    }
+
+    public void addComponentManager(ComponentManager manager, String id, boolean playerNeedAuthentication){
+        if(canAddComponentManager){
+            this.playerNeedAuthentication = playerNeedAuthentication == false?playerNeedAuthentication:true;
+
+            componentManagers.add(manager);
+        }
+    }
+
+    public void addComponentManagerListenButton(ComponentManager manager, String buttonId){
+        if(componentsCreated.get(buttonId.toLowerCase()) == null) {
+            ArrayList<ComponentManager> componentManagers = componentManagersListeningButton.get(buttonId);
+
+            if (componentManagers == null) {
+                componentManagersListeningButton.put(buttonId, new ArrayList<ComponentManager>());
+                componentManagers = componentManagersListeningButton.get(buttonId);
+            }
+
+            componentManagers.add(manager);
+        }
+    }
+
+    public Component loadComponents(File xml, File css){
+        return ComponentFactory.load(xml, css);
+    }
+
+    public ArrayList<Resource> loadResource(File resource){
+        return ResourceFactory.load(resource);
+    }
+
+    public PluginInterface getPluginInterface() {
+        return pluginInterface;
+    }
+
+    public boolean isPlayerAuthenticated(String playerUUID){
+        if(!playerNeedAuthentication)
+            return true;
+        else
+            return true /*authenticationManager.isPlayerAuthenticated(playerUUID)*/;
+    }
+
+    public ArrayList<ComponentManager> getComponentManagers() {
+        return (ArrayList<ComponentManager>) componentManagers.clone();
     }
 
     public boolean changePlayerConnectionState(String playerUUID){
@@ -137,7 +220,6 @@ public final class MainController {
 
     public void resetPlayerComponentLocation(String playerUUID){
         componentLocationController.resetPlayerComponentLocationRelative(playerUUID);
-        networkController.sendCommandTo(playerUUID, createCommandClearScreen());
         callInitPlayerGUIEvent(networkController.getPlayerConnection(playerUUID));
     }
 
@@ -145,25 +227,34 @@ public final class MainController {
         networkController.closePlayer(playerUUID);
     }
 
-    protected void newPlayerConnected(PlayerConnection playerConnection){
-        playersAuthenticated.put(playerConnection.getPlayerUUID(), false);
+    protected void newPlayerConnection(PlayerConnection playerConnection){
+        //authenticationManager.addPlayerToAuthenticate(playerConnection.getPlayerUUID());
 
-        if(playerNeedAuthentication)
+        /*if(playerNeedAuthentication)
             authenticationManager.initPlayerGUI(playerConnection.getPlayerUUID());
-        else
-            setPlayersAuthenticated(playerConnection.getPlayerUUID());
+        else{*/
+            for(Resource resource : resourcesToDownload)
+                sendResource(playerConnection.getPlayerUUID(), resource);
+            callInitPlayerGUIEvent(playerConnection);
+        //}
     }
 
     protected void receiveCommand(PlayerConnection playerConnection, JSONObject object){
         String command[] = ((String) object.get("Command")).split(" ");
+        String playerUUID = playerConnection.getPlayerUUID();
         
         if(command.length == 2){
             if(command[0].equals("FORM")){
                 if(command[1].equals("INPUT")){
-                    if(playersAuthenticated.get(playerConnection.getPlayerUUID()).equals(Boolean.TRUE))
+                    if(isPlayerAuthenticated(playerUUID))
                         callReceiveInputFormEvent(playerConnection, object);
-                    else
-                        authenticationManager.receiveForm(playerConnection.getPlayerUUID(), new Form(object));
+                    else {
+                        //authenticationManager.receiveForm(playerUUID, new Form(object));
+
+                        if(isPlayerAuthenticated(playerUUID)){
+                            callInitPlayerGUIEvent(playerConnection);
+                        }
+                    }
                 }
             }
             else if(command[0].equals("SET")){
@@ -183,20 +274,26 @@ public final class MainController {
     }
 
     protected void callInitPlayerGUIEvent(PlayerConnection playerConnection){
+        networkController.sendCommandTo(playerConnection.getPlayerUUID(), createCommandClearScreen());
+
         for(ComponentManager manager : componentManagers)
             manager.initPlayerGUI(playerConnection.getPlayerUUID());
     }
     
     private void callReceiveInputFormEvent(PlayerConnection playerConnection, JSONObject object){
         String buttonId = (String) object.get("ButtonId");
-        ArrayList<ComponentManager> managers = componentManagersPerComponent.get(buttonId);
-        
+        ArrayList<ComponentManager> managers = componentManagersListeningButton.get(buttonId);
+
         if(managers != null){
             Form form = new Form(object);
             
             for(ComponentManager manager : managers)
                 manager.receiveForm(playerConnection.getPlayerUUID(), form);
         }
+    }
+
+    protected void clearPlayerScreen(String playerUUID){
+        networkController.sendCommandTo(playerUUID, createCommandClearScreen());
     }
 
     public void serverInit(){
@@ -222,8 +319,19 @@ public final class MainController {
     public void playerQuit(String playerUUID) {
         networkController.closePlayer(playerUUID);
     }
-    
-    protected JSONArray createCommandClearScreen(){
+
+    private JSONArray createCommandCallButtonEvent(String buttonId){
+        JSONArray array = new JSONArray();
+        JSONObject object = new JSONObject();
+        object.put("Command", "CALL BUTTON_EVENT");
+        object.put("ButtonId", buttonId);
+
+        array.add(object);
+
+        return array;
+    }
+
+    private JSONArray createCommandClearScreen(){
         JSONArray array = new JSONArray();
         JSONObject object = new JSONObject();
         object.put("Command", "CLEAR SCREEN");
@@ -233,38 +341,34 @@ public final class MainController {
         return array;
     }
 
-    private JSONArray createCommandsDownloadImage(ComponentManager manager){
+    private JSONArray createCommandDownloadImage(String url, String name){
         JSONArray array = new JSONArray();
 
-        for(Map.Entry pairs : manager.getImagesToDownload().entrySet()){
-            JSONObject object = new JSONObject();
+        JSONObject object = new JSONObject();
 
-            object.put("Command", "DOWNLOAD IMAGE");
-            object.put("Url", pairs.getKey());
-            object.put("File", pairs.getValue());
+        object.put("Command", "DOWNLOAD IMAGE");
+        object.put("Url", url);
+        object.put("File", name);
 
-            array.add(object);
-        }
+        array.add(object);
 
         return array;
     }
 
-    private JSONArray createCommandsDownloadFont(ComponentManager manager){
+    private JSONArray createCommandDownloadFont(String url){
         JSONArray array = new JSONArray();
 
-        for(String url : manager.getFontsToDownload()){
-            JSONObject object = new JSONObject();
+        JSONObject object = new JSONObject();
 
-            object.put("Command", "DOWNLOAD FONT");
-            object.put("Url", url);
+        object.put("Command", "DOWNLOAD FONT");
+        object.put("Url", url);
 
-            array.add(object);
-        }
+        array.add(object);
 
         return array;
     }
     
-    public JSONArray createCommandRemoveComponent(String componentId){
+    private JSONArray createCommandRemoveComponent(String componentId){
         JSONArray array = new JSONArray();
         JSONObject object = new JSONObject();
         object.put("Command", "REMOVE COMPONENT");
@@ -274,5 +378,19 @@ public final class MainController {
         
         return array;
     }
-    
+
+    private JSONArray createCommandTimerRemover(String componentIdToRemove, int second){
+        JSONArray array = new JSONArray();
+
+        JSONObject object = new JSONObject();
+
+        object.put("Command", "CREATE TIMER_REMOVER");
+        object.put("ComponentId", componentIdToRemove);
+        object.put("Second", second);
+
+        array.add(object);
+
+        return array;
+    }
+
 }
