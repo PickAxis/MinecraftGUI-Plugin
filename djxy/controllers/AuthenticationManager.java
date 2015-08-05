@@ -1,8 +1,17 @@
 package djxy.controllers;
 
-public class AuthenticationManager /*extends ComponentManager*/ {
+import djxy.models.ComponentManager;
+import djxy.models.Form;
+import djxy.models.component.Component;
+import djxy.models.component.*;
 
-   /* private final static int maxTry = 3;
+import java.awt.*;
+import java.util.HashMap;
+import java.util.Random;
+
+public class AuthenticationManager implements ComponentManager {
+
+    private final static int maxTry = 3;
     private final static String panelId = "@AUTH_PANEL";
     private final static String inputId = "@AUTH_INPUT";
     private final static String imageId = "@AUTH_IMAGE_LOGO";
@@ -24,7 +33,6 @@ public class AuthenticationManager /*extends ComponentManager*/ {
     private Component buttonSendCodeInChat;
 
     public AuthenticationManager(MainController mainController) {
-        super("Authentication Manager", true, null, null);
         this.mainController = mainController;
         playersAuthenticated = new HashMap<>();
         playersTrying = new HashMap<>();
@@ -86,7 +94,7 @@ public class AuthenticationManager /*extends ComponentManager*/ {
     }
 
     private void initComps(){
-        panel = new Component(ComponentType.PANEL, panelId);
+        panel = new Component(panelId, ComponentType.PANEL);
 
         panel.getAttributes().setPosition(Position.MIDDLE);
         panel.getAttributes().setXRelative(-.5f);
@@ -95,7 +103,7 @@ public class AuthenticationManager /*extends ComponentManager*/ {
         panel.getAttributes().setHeight(ComponentState.NORMAL, 91);
         panel.getAttributes().setBackground(ComponentState.NORMAL, new Color(58, 58, 58, 255));
 
-        image = new Component(ComponentType.IMAGE, imageId, panelId);
+        image = new Component(imageId, ComponentType.IMAGE, panel);
 
         image.getAttributes().setXRelative(2);
         image.getAttributes().setYRelative(2);
@@ -104,7 +112,7 @@ public class AuthenticationManager /*extends ComponentManager*/ {
         image.getAttributes().setImageName(ComponentState.NORMAL, "logoMinecraftGUI.png");
         image.getAttributes().setImageType(ComponentState.NORMAL, ImageType.CUSTOM);
 
-        line = new Component(ComponentType.PANEL, lineId, panelId);
+        line = new Component(lineId, ComponentType.PANEL, panel);
 
         line.getAttributes().setYRelative(30);
         line.getAttributes().setMarginLeft(ComponentState.NORMAL, 2);
@@ -113,7 +121,7 @@ public class AuthenticationManager /*extends ComponentManager*/ {
         line.getAttributes().setHeight(ComponentState.NORMAL, 1);
         line.getAttributes().setBackground(ComponentState.NORMAL, new Color(108, 108, 108, 255));
 
-        paragraph = new Component(ComponentType.PARAGRAPH, paraId, panelId);
+        paragraph = new Component(paraId, ComponentType.PARAGRAPH, panel);
 
         paragraph.getAttributes().setYRelative(33);
         paragraph.getAttributes().setWidth(ComponentState.NORMAL, 1f);
@@ -123,7 +131,7 @@ public class AuthenticationManager /*extends ComponentManager*/ {
         paragraph.getAttributes().setValue("This server need an authentication. Enter the code you received in the chat. You only have 3 chances.");
         paragraph.getAttributes().setTextColor(ComponentState.NORMAL, new Color(240, 240, 240, 255));
 
-        input = new Component(ComponentType.INPUT_INTEGER, inputId, panelId);
+        input = new Component(inputId, ComponentType.INPUT_INTEGER, panel);
 
         input.getAttributes().setYRelative(65);
         input.getAttributes().setWidth(ComponentState.NORMAL, 1f);
@@ -139,7 +147,7 @@ public class AuthenticationManager /*extends ComponentManager*/ {
         input.getAttributes().setTextColor(ComponentState.NORMAL, new Color(240, 240, 240, 255));
         input.getAttributes().setHint("Code");
 
-        buttonSendCodeInChat = new Component(ComponentType.BUTTON, buttonSendCodeInChatId, panelId);
+        buttonSendCodeInChat = new Component(buttonSendCodeInChatId, ComponentType.BUTTON, panel);
 
         buttonSendCodeInChat.getAttributes().setYRelative(80);
         buttonSendCodeInChat.getAttributes().setXRelative(1f);
@@ -151,7 +159,7 @@ public class AuthenticationManager /*extends ComponentManager*/ {
         buttonSendCodeInChat.getAttributes().setValue("Send code");
         buttonSendCodeInChat.getAttributes().setTextColor(ComponentState.NORMAL, new Color(240, 240, 240, 255));
 
-        buttonAuthenticate = new Component(ComponentType.BUTTON, buttonAuthenticateId, panelId);
+        buttonAuthenticate = new Component(buttonAuthenticateId, ComponentType.BUTTON, panel);
 
         buttonAuthenticate.getAttributes().setYRelative(80);
         buttonAuthenticate.getAttributes().setWidth(ComponentState.NORMAL, .5f);
@@ -166,5 +174,5 @@ public class AuthenticationManager /*extends ComponentManager*/ {
         buttonAuthenticate.getAttributes().setBorderSize(ComponentState.NORMAL, 1);
         buttonAuthenticate.getAttributes().setBorderColor(ComponentState.NORMAL, new Color(108, 108, 108, 255));
         buttonAuthenticate.getAttributes().addInput(inputId);
-    }*/
+    }
 }

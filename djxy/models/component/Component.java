@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) Samuel Marchildon-Lavoie - All Rights Reserved
+ */
+
 package djxy.models.component;
 
 import org.json.simple.JSONArray;

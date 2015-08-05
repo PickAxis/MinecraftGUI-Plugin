@@ -113,7 +113,7 @@ public final class MainController {
     private final HashMap<String, ArrayList<ComponentManager>> componentManagersListeningButton;
     private final NetworkController networkController;
     private final ComponentLocationController componentLocationController;
-    //private final AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
     private final PluginInterface pluginInterface;
     private boolean canAddComponentManager = false;
     private boolean playerNeedAuthentication = false;
@@ -128,7 +128,7 @@ public final class MainController {
         componentsCreated = new HashMap<>();
         componentManagers = new ArrayList<>();
         componentManagersListeningButton = new HashMap<>();
-        //this.authenticationManager = new AuthenticationManager(this);
+        this.authenticationManager = new AuthenticationManager(this);
         networkController = new NetworkController(this, 20000);
         componentLocationController = new ComponentLocationController();
     }
@@ -207,7 +207,7 @@ public final class MainController {
         if(!playerNeedAuthentication)
             return true;
         else
-            return true /*authenticationManager.isPlayerAuthenticated(playerUUID)*/;
+            return authenticationManager.isPlayerAuthenticated(playerUUID);
     }
 
     public ArrayList<ComponentManager> getComponentManagers() {
@@ -228,15 +228,15 @@ public final class MainController {
     }
 
     protected void newPlayerConnection(PlayerConnection playerConnection){
-        //authenticationManager.addPlayerToAuthenticate(playerConnection.getPlayerUUID());
+        authenticationManager.addPlayerToAuthenticate(playerConnection.getPlayerUUID());
 
-        /*if(playerNeedAuthentication)
+        if(playerNeedAuthentication)
             authenticationManager.initPlayerGUI(playerConnection.getPlayerUUID());
-        else{*/
+        else{
             for(Resource resource : resourcesToDownload)
                 sendResource(playerConnection.getPlayerUUID(), resource);
             callInitPlayerGUIEvent(playerConnection);
-        //}
+        }
     }
 
     protected void receiveCommand(PlayerConnection playerConnection, JSONObject object){
@@ -249,11 +249,10 @@ public final class MainController {
                     if(isPlayerAuthenticated(playerUUID))
                         callReceiveInputFormEvent(playerConnection, object);
                     else {
-                        //authenticationManager.receiveForm(playerUUID, new Form(object));
+                        authenticationManager.receiveForm(playerUUID, new Form(object));
 
-                        if(isPlayerAuthenticated(playerUUID)){
+                        if(isPlayerAuthenticated(playerUUID))
                             callInitPlayerGUIEvent(playerConnection);
-                        }
                     }
                 }
             }
