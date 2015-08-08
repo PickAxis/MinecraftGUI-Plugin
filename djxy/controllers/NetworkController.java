@@ -29,22 +29,21 @@ import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class NetworkController {
     
-    private final HashMap<String, Boolean> playersConnected;//List of all the player connected on the server and the boolean indicate if he is connected with the client
-    private final HashMap<String, PlayerConnection> playerConnections;
+    private final Map<String, Boolean> playersConnected;//List of all the player connected on the server and the boolean indicate if he is connected with the client
+    private final Map<String, PlayerConnection> playerConnections;
     private final ServerConnection serverConnection;
     private final MainController mainController;
 
     protected NetworkController(MainController mainController, int port) {
         this.mainController = mainController;
-        this.playersConnected = new HashMap<>();
-        playerConnections = new HashMap<>();
+        this.playersConnected = new ConcurrentHashMap<>();
+        playerConnections = new ConcurrentHashMap<>();
         serverConnection = new ServerConnection(port);
     }
     
@@ -98,9 +97,9 @@ public final class NetworkController {
             playerConnection.close();
             playersConnected.remove(playerConnection.playerUUID);
         }
-        
+
         playerConnections.clear();
-        
+
         serverConnection.close();
     }
     
@@ -121,7 +120,7 @@ public final class NetworkController {
         private int port;
         
         public ServerConnection(int port){
-            playerConnectionsWaitingUUID = Collections.synchronizedList(new ArrayList<PlayerConnection>());
+            playerConnectionsWaitingUUID = new CopyOnWriteArrayList<>();
             try {
                 this.port = port;
                 serverSocket = new ServerSocket();
@@ -163,11 +162,10 @@ public final class NetworkController {
                 @Override
                 public void run() {
                     while(!serverSocket.isClosed()){
-                        ArrayList<PlayerConnection> clone = new ArrayList<>(playerConnectionsWaitingUUID);
                         long time = System.currentTimeMillis();
                         int connectionClosed = 0;
-                        
-                        for(PlayerConnection playerConnection : clone){
+
+                        for(PlayerConnection playerConnection : playerConnectionsWaitingUUID){
                             if(time - playerConnection.timeCreated > 5000){
                                 playerConnectionsWaitingUUID.remove(playerConnection);
 

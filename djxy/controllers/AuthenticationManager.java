@@ -26,7 +26,10 @@ import djxy.models.resource.Resource;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class AuthenticationManager implements ComponentManager {
 
@@ -35,16 +38,16 @@ public class AuthenticationManager implements ComponentManager {
     private final static String buttonSendCodeInChatId = "authenticationSendCode";
     private final static String buttonAuthenticateId = "authenticationAuthenticate";
 
-    private final HashMap<String, Boolean> playersAuthenticated;
-    private final HashMap<String, Integer> playersTrying;
-    private final HashMap<String, String> playersCode;
+    private final Map<String, Boolean> playersAuthenticated;
+    private final Map<String, Integer> playersTrying;
+    private final Map<String, String> playersCode;
     private final MainController mainController;
     private final Component root;
     private final ArrayList<Resource> resources;
 
     public AuthenticationManager(MainController mainController) {
         this.mainController = mainController;
-        playersAuthenticated = new HashMap<>();
+        playersAuthenticated = new ConcurrentHashMap<>();
         playersTrying = new HashMap<>();
         playersCode = new HashMap<>();
         root = ComponentFactory.load(new File(MainController.PATH+"/Authentication/authComponents.xml"), new File(MainController.PATH+"/Authentication/authAttributes.css"));
@@ -94,7 +97,7 @@ public class AuthenticationManager implements ComponentManager {
     }
 
     private void initPlayerAuth(String playerUUID) {
-        String code = (new Random().nextInt(900000)+100000)+"";
+        String code = (ThreadLocalRandom.current().nextInt(900000)+100000)+"";
         playersTrying.put(playerUUID, 0);
         playersCode.put(playerUUID, code);
         sendPlayerCode(playerUUID);
