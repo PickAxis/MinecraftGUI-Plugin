@@ -1,5 +1,5 @@
 /*
- *     Minecraft GUI Server. A plugin to manage the Minecraft GUI mod.
+ *     Minecraft GUI Server
  *     Copyright (C) 2015  Samuel Marchildon-Lavoie
  *
  *     This program is free software: you can redistribute it and/or modify
