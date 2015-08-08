@@ -1,7 +1,19 @@
 /*
- * Copyright (C) Samuel Marchildon-Lavoie - All Rights Reserved
+ *     Minecraft GUI Server. A plugin to manage the Minecraft GUI mod.
+ *     Copyright (C) 2015  Samuel Marchildon-Lavoie
  *
- * License: https://github.com/djxy/MinecraftGUI-Plugin/blob/master/License.txt
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package djxy.views;
@@ -78,6 +90,17 @@ public class Sponge implements PluginInterface {
         }
     }
 
+    @Override
+    public void screenLoaded(String playerUUID) {
+        try {
+            Player player = game.getServer().getPlayer(UUID.fromString(playerUUID)).get();
+
+            player.sendMessage(Texts.builder("Your screen is loaded.").color(TextColors.GREEN).build());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     private class CommandGui {
 
         private final CommandSpec command;
@@ -111,10 +134,8 @@ public class Sponge implements PluginInterface {
                 Player player = (Player) commandSource;
                 String playerUUID = player.getUniqueId().toString();
 
-                if(mainController.isPlayerAuthenticated(playerUUID)) {
+                if(mainController.isPlayerAuthenticated(playerUUID))
                     mainController.reloadPlayerScreen(playerUUID);
-                    commandSource.sendMessage(Texts.builder("Your screen has been reloaded.").color(TextColors.GREEN).build());
-                }
             }
             return CommandResult.success();
         }
