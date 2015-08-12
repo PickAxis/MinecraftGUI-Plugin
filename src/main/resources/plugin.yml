@@ -1,0 +1,4 @@
+name: MinecraftGUI
+version: ${project.version}
+authors: [djxy, NickG365]
+main: djxy.views.Bukkit
