@@ -1,5 +1,7 @@
 ## MinecraftGUI is a gui manager that allow you to create interface to ease the interaction with your plugins.
 
+This version adds support for Bukkit/Spigot servers and plugins.
+
 https://www.youtube.com/watch?v=r3E62Ly7hjI
 
 #### Features
@@ -18,10 +20,7 @@ https://www.youtube.com/watch?v=r3E62Ly7hjI
 /gui reload - Reload your interface.
 ```
 
-#### Build for the plugin version: https://github.com/djxy/MinecraftGUI-Plugin/releases
-#### Build for the mod version: https://github.com/djxy/MinecraftGUI-Mod/releases
-
-#### Currently, I'm searching developers who would like to implement MinecraftGUI on their project. I will help to create and implement everything to ease your work.
+#### Builds for the client mod: https://github.com/djxy/MinecraftGUI-Mod/releases
 
 #### To Do:
   - Documentation.
